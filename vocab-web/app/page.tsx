@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { VOCAB_LIST, VocabItem } from "@/data/vocabData";
 import { checkReadingMatch, speakJapanese, parseReadingField } from "@/lib/japaneseUtils";
+import { soundFX } from "@/lib/soundEffects";
 import {
   Volume2,
   VolumeX,
@@ -66,6 +67,11 @@ export default function VocabQuizApp() {
   const [shuffledOrder, setShuffledOrder] = useState<number[]>([]);
   const [isShuffled, setIsShuffled] = useState<boolean>(false);
   const [tableExpanded, setTableExpanded] = useState<boolean>(true);
+  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    setSoundEffectsEnabled(soundFX.enabled);
+  }, []);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -262,6 +268,7 @@ export default function VocabQuizApp() {
   }, [filteredList.length, currentIndex]);
 
   const toggleStar = (vocabText: string) => {
+    soundFX.playStar();
     setStarredWords((prev) =>
       prev.includes(vocabText)
         ? prev.filter((item) => item !== vocabText)
@@ -277,6 +284,7 @@ export default function VocabQuizApp() {
   };
 
   const handleShuffle = () => {
+    soundFX.playClick();
     if (!isShuffled) {
       const arr = Array.from({ length: filteredList.length }, (_, i) => i);
       for (let i = arr.length - 1; i > 0; i--) {
@@ -316,11 +324,13 @@ export default function VocabQuizApp() {
     }
 
     if (isMatch) {
+      soundFX.playCorrect();
       if (!correctWords.includes(currentItem.vocab)) {
         setCorrectWords((prev) => [...prev, currentItem.vocab]);
       }
       setWrongWords((prev) => prev.filter((v) => v !== currentItem.vocab));
     } else {
+      soundFX.playWrong();
       if (!wrongWords.includes(currentItem.vocab)) {
         setWrongWords((prev) => [...prev, currentItem.vocab]);
       }
@@ -328,6 +338,7 @@ export default function VocabQuizApp() {
   };
 
   const handleReveal = () => {
+    soundFX.playReveal();
     if (!currentItem) return;
     setCheckedState({
       isChecked: true,
@@ -346,6 +357,7 @@ export default function VocabQuizApp() {
   };
 
   const handleNext = () => {
+    soundFX.playNext();
     if (currentIndex < filteredList.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
@@ -354,6 +366,7 @@ export default function VocabQuizApp() {
   };
 
   const handlePrev = () => {
+    soundFX.playNext();
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
     } else {
@@ -665,6 +678,28 @@ export default function VocabQuizApp() {
                 </div>
 
                 <div className="flex items-center gap-1 sm:gap-1.5">
+                  {/* Sound FX toggle */}
+                  <button
+                    onClick={() => {
+                      const nextVal = soundFX.toggle();
+                      setSoundEffectsEnabled(nextVal);
+                    }}
+                    title={
+                      soundEffectsEnabled
+                        ? "Âm thanh hiệu ứng gõ phím & kiểm tra đang BẬT"
+                        : "Âm thanh hiệu ứng đang TẮT"
+                    }
+                    className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] border transition min-h-[32px] ${
+                      soundEffectsEnabled
+                        ? "bg-zinc-100 text-zinc-800 border-zinc-300 font-medium"
+                        : "bg-white text-zinc-400 border-zinc-200"
+                    }`}
+                  >
+                    <Sparkles className={`w-3.5 h-3.5 ${soundEffectsEnabled ? "text-amber-500" : "text-zinc-400"} shrink-0`} />
+                    <span className="hidden sm:inline">Hiệu ứng:</span>
+                    <span>{soundEffectsEnabled ? "Bật" : "Tắt"}</span>
+                  </button>
+
                   {/* Auto speech toggle */}
                   <button
                     onClick={() => setAutoSpeak(!autoSpeak)}
@@ -775,7 +810,10 @@ export default function VocabQuizApp() {
                     ref={inputRef}
                     type="text"
                     value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
+                    onChange={(e) => {
+                      setUserInput(e.target.value);
+                      soundFX.playTyping();
+                    }}
                     onKeyDown={handleKeyDown}
                     disabled={checkedState.isChecked && checkedState.isCorrect}
                     placeholder={
@@ -847,30 +885,58 @@ export default function VocabQuizApp() {
                 {/* Feedback Banner if checked */}
                 {checkedState.isChecked && (
                   <div
-                    className={`mt-3 sm:mt-4 p-3.5 sm:p-4 rounded-lg border text-sm text-center transition-all ${
+                    className={`mt-3 sm:mt-4 p-4 rounded-xl border transition-all shadow-sm ${
                       checkedState.isCorrect
-                        ? "bg-zinc-100 border-zinc-300 text-zinc-800"
-                        : "bg-zinc-50 border-zinc-300 text-zinc-800"
+                        ? "bg-emerald-50/70 border-emerald-300/80 text-emerald-950"
+                        : "bg-amber-50/70 border-amber-300/80 text-amber-950"
                     }`}
                   >
-                    <div className="flex items-center justify-center gap-1.5 font-semibold text-sm sm:text-base mb-1">
+                    <div className="flex items-center justify-center gap-1.5 font-bold text-sm sm:text-base mb-2">
                       {checkedState.isCorrect ? (
-                        <>
-                          <Check className="w-4 h-4 text-zinc-800" />
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-semibold border border-emerald-200">
+                          <Check className="w-4 h-4 text-emerald-700" />
                           <span>Chính xác! Bạn đã gõ đúng!</span>
-                        </>
+                        </span>
                       ) : (
-                        <>
-                          <X className="w-4 h-4 text-zinc-600" />
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs sm:text-sm font-semibold border border-amber-200">
+                          <X className="w-4 h-4 text-amber-700" />
                           <span>Chưa chính xác (hoặc đã xem đáp án)</span>
-                        </>
+                        </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-zinc-500 mb-0.5">
-                      Từ vựng & Cách đọc chuẩn:
+
+                    <div className="text-center mb-3">
+                      <div className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+                        {currentItem.vocab}
+                      </div>
+                      <div className="text-sm sm:text-base font-semibold text-zinc-700 font-mono mt-0.5">
+                        【 {currentItem.reading} 】
+                      </div>
                     </div>
-                    <div className="text-lg sm:text-xl font-bold text-zinc-800 tracking-wide select-all">
-                      {currentItem.vocab} 【 {currentItem.reading} 】
+
+                    {/* HIỂN THỊ NGHĨA TIẾNG VIỆT SAU KHI NHẬP XONG */}
+                    <div className="bg-white rounded-lg p-3 sm:p-4 border border-zinc-200/90 shadow-sm text-left">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 uppercase tracking-wide mb-1">
+                        <BookOpen className="w-4 h-4 text-zinc-700" />
+                        <span>Nghĩa tiếng Việt:</span>
+                      </div>
+                      <div className="text-base sm:text-xl font-bold text-zinc-900 leading-snug">
+                        {currentItem.meaning}
+                      </div>
+
+                      {currentItem.example && (
+                        <div className="mt-2.5 pt-2.5 border-t border-zinc-150 text-xs sm:text-sm text-zinc-700">
+                          <span className="font-semibold text-zinc-800">Ví dụ: </span>
+                          <span className="text-zinc-800 font-medium">{currentItem.example}</span>
+                        </div>
+                      )}
+
+                      {currentItem.notes && (
+                        <div className="mt-2 text-xs text-zinc-600 bg-zinc-50 p-2.5 rounded border border-zinc-200">
+                          <span className="font-semibold text-zinc-800">Ghi chú: </span>
+                          <span>{currentItem.notes}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
