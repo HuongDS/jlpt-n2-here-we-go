@@ -701,7 +701,7 @@ export default function VocabQuizApp() {
       {/* Top Header */}
       <header className="border-b border-zinc-200 bg-white sticky top-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
         <div
-          className={`mx-auto px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col gap-2 transition-all duration-200 ${
+          className={`mx-auto px-3 sm:px-4 py-2 sm:py-2.5 landscape:py-1.5 flex flex-col gap-2 landscape:gap-1.5 transition-all duration-200 ${
             tab === "list"
               ? tableExpanded
                 ? "max-w-[1600px] w-full px-4 sm:px-8"
@@ -814,7 +814,7 @@ export default function VocabQuizApp() {
                 soundFX.playClick();
                 setTab("quiz");
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 px-1 sm:px-3 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-1 sm:px-3 rounded-md font-medium transition-all ${
                 tab === "quiz"
                   ? "bg-white text-zinc-800 shadow-sm"
                   : "text-zinc-600 hover:text-zinc-800"
@@ -829,7 +829,7 @@ export default function VocabQuizApp() {
                 setTab("match");
                 if (matchCards.length === 0) startNewMatchGame();
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 px-1 sm:px-3 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-1 sm:px-3 rounded-md font-medium transition-all ${
                 tab === "match"
                   ? "bg-white text-zinc-800 shadow-sm"
                   : "text-zinc-600 hover:text-zinc-800"
@@ -844,7 +844,7 @@ export default function VocabQuizApp() {
                 setTab("speed");
                 if (!isSpeedRunning && !isSpeedFinished) startSpeedRun();
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 px-1 sm:px-3 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-1 sm:px-3 rounded-md font-medium transition-all ${
                 tab === "speed"
                   ? "bg-white text-zinc-800 shadow-sm"
                   : "text-zinc-600 hover:text-zinc-800"
@@ -858,7 +858,7 @@ export default function VocabQuizApp() {
                 soundFX.playClick();
                 setTab("list");
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 px-1 sm:px-3 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-1 sm:px-3 rounded-md font-medium transition-all ${
                 tab === "list"
                   ? "bg-white text-zinc-800 shadow-sm"
                   : "text-zinc-600 hover:text-zinc-800"
@@ -1096,240 +1096,271 @@ export default function VocabQuizApp() {
                 </div>
 
                 {/* Main Word Card */}
-                <div className="bg-white border border-zinc-200 rounded-xl p-3.5 sm:p-8 shadow-sm flex flex-col items-center relative">
+                <div className="bg-white border border-zinc-200 rounded-xl p-3.5 sm:p-8 landscape:p-3.5 shadow-sm flex flex-col landscape:flex-row landscape:items-start landscape:gap-4 items-center relative">
                   {/* Streak milestone alert banner */}
                   {showStreakCelebration && (
-                    <div className="absolute -top-3 bg-zinc-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md animate-bounce flex items-center gap-1">
+                    <div className="absolute -top-3 bg-zinc-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md animate-bounce flex items-center gap-1 z-10">
                       <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                       <span>Tuyệt vời! Chuỗi {currentStreak} câu đúng liên tiếp!</span>
                     </div>
                   )}
 
-                  {/* Card top toolbar */}
-                  <div className="w-full flex items-center justify-between mb-2.5 sm:mb-4 gap-2">
-                    <div className="flex items-center gap-1.5">
-                      {currentItem.isCorrect && (
-                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded-full border border-zinc-200">
-                          <Sparkles className="w-3 h-3 text-zinc-500" />
-                          Đáp án đúng N2
-                        </span>
-                      )}
-                      {studyMode === "listening" && (
-                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium bg-zinc-700 text-white px-2 py-0.5 rounded-full">
-                          <Headphones className="w-3 h-3" />
-                          Chính tả nghe
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1 sm:gap-1.5">
-                      <button
-                        onClick={() => {
-                          soundFX.playClick();
-                          setAutoSpeak(!autoSpeak);
-                        }}
-                        title={
-                          autoSpeak
-                            ? "Đang bật tự động đọc sau khi nhập"
-                            : "Đang tắt tự động đọc"
-                        }
-                        className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] border transition min-h-[32px] ${
-                          autoSpeak
-                            ? "bg-zinc-100 text-zinc-800 border-zinc-300 font-medium"
-                            : "bg-white text-zinc-400 border-zinc-200"
-                        }`}
-                      >
-                        {autoSpeak ? (
-                          <Volume2 className="w-3.5 h-3.5 text-zinc-800 shrink-0" />
-                        ) : (
-                          <VolumeX className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                  {/* Left Column in Landscape (Vocabulary Display & Card Toolbar) */}
+                  <div className="w-full landscape:w-1/2 flex flex-col items-center justify-center">
+                    {/* Card top toolbar */}
+                    <div className="w-full flex items-center justify-between mb-2.5 sm:mb-4 landscape:mb-2 gap-2">
+                      <div className="flex items-center gap-1.5">
+                        {currentItem.isCorrect && (
+                          <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded-full border border-zinc-200">
+                            <Sparkles className="w-3 h-3 text-zinc-500" />
+                            Đáp án đúng N2
+                          </span>
                         )}
-                        <span className="hidden sm:inline">Tự đọc:</span>
-                        <span>{autoSpeak ? "Bật" : "Tắt"}</span>
-                      </button>
+                        {studyMode === "listening" && (
+                          <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium bg-zinc-700 text-white px-2 py-0.5 rounded-full">
+                            <Headphones className="w-3 h-3" />
+                            Chính tả nghe
+                          </span>
+                        )}
+                      </div>
 
-                      <button
-                        onClick={playCurrentAudio}
-                        title="Bấm để nghe phát âm ngay"
-                        className="p-1.5 sm:p-2 rounded-lg text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition min-w-[32px] min-h-[32px] flex items-center justify-center"
-                      >
-                        <Volume2 className="w-4 h-4" />
-                      </button>
-
-                      <button
-                        onClick={() => toggleStar(currentItem.vocab)}
-                        title="Đánh dấu từ cần lưu ý"
-                        className="p-1.5 sm:p-2 rounded-lg text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition min-w-[32px] min-h-[32px] flex items-center justify-center"
-                      >
-                        <Star
-                          className={`w-4 h-4 ${
-                            starredWords.includes(currentItem.vocab)
-                              ? "fill-zinc-800 text-zinc-800"
-                              : "text-zinc-400"
+                      <div className="flex items-center gap-1 sm:gap-1.5">
+                        <button
+                          onClick={() => {
+                            soundFX.playClick();
+                            setAutoSpeak(!autoSpeak);
+                          }}
+                          title={
+                            autoSpeak
+                              ? "Đang bật tự động đọc sau khi nhập"
+                              : "Đang tắt tự động đọc"
+                          }
+                          className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] border transition min-h-[32px] ${
+                            autoSpeak
+                              ? "bg-zinc-100 text-zinc-800 border-zinc-300 font-medium"
+                              : "bg-white text-zinc-400 border-zinc-200"
                           }`}
-                        />
-                      </button>
-                    </div>
-                  </div>
+                        >
+                          {autoSpeak ? (
+                            <Volume2 className="w-3.5 h-3.5 text-zinc-800 shrink-0" />
+                          ) : (
+                            <VolumeX className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                          )}
+                          <span className="hidden sm:inline">Tự đọc:</span>
+                          <span>{autoSpeak ? "Bật" : "Tắt"}</span>
+                        </button>
 
-                  {/* Vocabulary Display */}
-                  {studyMode === "reading" ? (
-                    <div className="my-1.5 sm:my-4 text-center px-2 w-full">
-                      <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 block mb-0.5 sm:mb-1">
-                        Từ vựng tiếng Nhật
-                      </span>
-                      <div className="text-2xl sm:text-5xl font-bold tracking-tight text-zinc-800 select-all break-words leading-tight">
-                        {currentItem.vocab}
+                        <button
+                          onClick={playCurrentAudio}
+                          title="Bấm để nghe phát âm ngay"
+                          className="p-1.5 sm:p-2 rounded-lg text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition min-w-[32px] min-h-[32px] flex items-center justify-center"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => toggleStar(currentItem.vocab)}
+                          title="Đánh dấu từ cần lưu ý"
+                          className="p-1.5 sm:p-2 rounded-lg text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 border border-transparent hover:border-zinc-200 transition min-w-[32px] min-h-[32px] flex items-center justify-center"
+                        >
+                          <Star
+                            className={`w-4 h-4 ${
+                              starredWords.includes(currentItem.vocab)
+                                ? "fill-zinc-800 text-zinc-800"
+                                : "text-zinc-400"
+                            }`}
+                          />
+                        </button>
                       </div>
                     </div>
-                  ) : (
-                    <div className="my-1.5 sm:my-4 text-center px-2 w-full flex flex-col items-center">
-                      {!checkedState.revealed ? (
-                        <div className="flex flex-col items-center gap-1.5 sm:gap-2">
-                          <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 block">
-                            Đang đọc phát âm • Hãy nghe và gõ lại
-                          </span>
-                          <button
-                            onClick={playCurrentAudio}
-                            className="group my-1.5 flex items-center gap-2 px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 border border-zinc-200 rounded-xl transition shadow-sm"
-                          >
-                            <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-800 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs sm:text-sm font-semibold text-zinc-800">
-                              Bấm để nghe lại âm thanh
+
+                    {/* Vocabulary Display */}
+                    {studyMode === "reading" ? (
+                      <div className="my-1.5 sm:my-4 landscape:my-1 text-center px-2 w-full">
+                        <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 block mb-0.5 sm:mb-1">
+                          Từ vựng tiếng Nhật
+                        </span>
+                        <div className="text-2xl sm:text-5xl landscape:text-3xl font-bold tracking-tight text-zinc-800 select-all break-words leading-tight">
+                          {currentItem.vocab}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="my-1.5 sm:my-4 landscape:my-1 text-center px-2 w-full flex flex-col items-center">
+                        {!checkedState.revealed ? (
+                          <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+                            <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 block">
+                              Đang đọc phát âm • Hãy nghe và gõ lại
                             </span>
-                          </button>
-                          <div className="text-base sm:text-lg font-mono tracking-widest text-zinc-300 select-none">
-                            [ • • • • • • ]
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center animate-in fade-in">
-                          <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">
-                            Từ vựng bạn vừa nghe:
-                          </span>
-                          <div className="text-2xl sm:text-5xl font-bold tracking-tight text-zinc-800 select-all break-words leading-tight">
-                            {currentItem.vocab}
-                          </div>
-                          <div className="text-sm sm:text-base font-semibold text-zinc-700 mt-1 font-mono">
-                            【 {currentItem.reading} 】
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Input field */}
-                  <div className="w-full max-w-md mt-2.5 sm:mt-5">
-                    <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 mb-1 text-center">
-                      {studyMode === "listening"
-                        ? "Gõ lại từ bạn vừa nghe (Kanji, Kana hoặc Romaji):"
-                        : "Nhập cách đọc (Hiragana, Katakana hoặc Romaji):"}
-                    </label>
-                    <div className="relative">
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        value={userInput}
-                        onChange={(e) => setUserInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        disabled={checkedState.isChecked && checkedState.isCorrect}
-                        placeholder={
-                          studyMode === "listening"
-                            ? "Gõ lại từ bạn vừa nghe..."
-                            : "Ví dụ: おそくとも hoặc osokutomo..."
-                        }
-                        autoCapitalize="none"
-                        autoCorrect="off"
-                        autoComplete="off"
-                        spellCheck={false}
-                        enterKeyHint="go"
-                        className={`w-full px-3 py-2.5 sm:py-3 text-center text-base sm:text-xl font-medium rounded-lg border outline-none transition-all ${
-                          checkedState.isChecked
-                            ? checkedState.isCorrect
-                              ? "border-zinc-700 bg-zinc-50 text-zinc-800"
-                              : "border-zinc-400 bg-zinc-50 text-zinc-800"
-                            : "border-zinc-300 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 bg-white"
-                        }`}
-                      />
-                    </div>
-
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-2 mt-3">
-                      {!checkedState.isChecked ? (
-                        <>
-                          <button
-                            onClick={handleCheckAnswer}
-                            className="flex-1 py-3 px-4 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800 text-white font-medium text-sm rounded-lg transition shadow-sm min-h-[44px] flex items-center justify-center"
-                          >
-                            Kiểm tra (Enter)
-                          </button>
-                          <button
-                            onClick={handleReveal}
-                            title="Xem đáp án nếu bạn chưa nhớ"
-                            className="py-3 px-3.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-700 text-sm font-medium rounded-lg border border-zinc-200 transition min-h-[44px] shrink-0"
-                          >
-                            Xem đáp án
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            onClick={handleNext}
-                            className="flex-1 py-3 px-4 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800 text-white font-medium text-sm rounded-lg transition shadow-sm min-h-[44px] flex items-center justify-center"
-                          >
-                            Từ tiếp theo →
-                          </button>
-                          {!checkedState.isCorrect && (
                             <button
-                              onClick={() => {
-                                soundFX.playClick();
-                                setCheckedState({
-                                  isChecked: false,
-                                  isCorrect: false,
-                                  revealed: false,
-                                });
-                                setUserInput("");
-                                inputRef.current?.focus();
-                              }}
-                              className="py-3 px-3.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-700 text-sm font-medium rounded-lg border border-zinc-200 transition min-h-[44px] shrink-0"
+                              onClick={playCurrentAudio}
+                              className="group my-1.5 flex items-center gap-2 px-4 py-2.5 landscape:py-1.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 border border-zinc-200 rounded-xl transition shadow-sm"
                             >
-                              Thử lại
+                              <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-800 group-hover:scale-110 transition-transform" />
+                              <span className="text-xs sm:text-sm font-semibold text-zinc-800">
+                                Bấm để nghe lại âm thanh
+                              </span>
                             </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-
-                    {/* Feedback Banner */}
-                    {checkedState.isChecked && (
-                      <div
-                        className={`mt-3 sm:mt-4 p-3.5 sm:p-4 rounded-lg border text-sm text-center transition-all ${
-                          checkedState.isCorrect
-                            ? "bg-zinc-100 border-zinc-300 text-zinc-800"
-                            : "bg-zinc-50 border-zinc-300 text-zinc-800"
-                        }`}
-                      >
-                        <div className="flex items-center justify-center gap-1.5 font-semibold text-sm sm:text-base mb-1">
-                          {checkedState.isCorrect ? (
-                            <>
-                              <Check className="w-4 h-4 text-zinc-800" />
-                              <span>Chính xác! (+{10 + Math.min(currentStreak * 2, 20)} XP)</span>
-                            </>
-                          ) : (
-                            <>
-                              <X className="w-4 h-4 text-zinc-600" />
-                              <span>Chưa chính xác (hoặc đã xem đáp án)</span>
-                            </>
-                          )}
-                        </div>
-                        <div className="text-[11px] text-zinc-500 mb-0.5">
-                          Từ vựng & Cách đọc chuẩn:
-                        </div>
-                        <div className="text-lg sm:text-xl font-bold text-zinc-800 tracking-wide select-all">
-                          {currentItem.vocab} 【 {currentItem.reading} 】
-                        </div>
+                            <div className="text-base sm:text-lg font-mono tracking-widest text-zinc-300 select-none">
+                              [ • • • • • • ]
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center animate-in fade-in">
+                            <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">
+                              Từ vựng bạn vừa nghe:
+                            </span>
+                            <div className="text-2xl sm:text-5xl landscape:text-3xl font-bold tracking-tight text-zinc-800 select-all break-words leading-tight">
+                              {currentItem.vocab}
+                            </div>
+                            <div className="text-sm sm:text-base font-semibold text-zinc-700 mt-1 font-mono">
+                              【 {currentItem.reading} 】
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
+                  </div>
+
+                  {/* Right Column in Landscape (Input Field, Action Buttons & Feedback Banner) */}
+                  <div className="w-full landscape:w-1/2 flex flex-col items-center mt-2 landscape:mt-0">
+                    {/* Input field */}
+                    <div className="w-full max-w-md">
+                      <label className="block text-[11px] sm:text-xs font-medium text-zinc-500 mb-1 text-center">
+                        {studyMode === "listening"
+                          ? "Gõ lại từ bạn vừa nghe (Kanji, Kana hoặc Romaji):"
+                          : "Nhập cách đọc (Hiragana, Katakana hoặc Romaji):"}
+                      </label>
+                      <div className="relative">
+                        <input
+                          ref={inputRef}
+                          type="text"
+                          value={userInput}
+                          onChange={(e) => setUserInput(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          disabled={checkedState.isChecked && checkedState.isCorrect}
+                          placeholder={
+                            studyMode === "listening"
+                              ? "Gõ lại từ bạn vừa nghe..."
+                              : "Ví dụ: おそくとも hoặc osokutomo..."
+                          }
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          autoComplete="off"
+                          spellCheck={false}
+                          enterKeyHint="go"
+                          className={`w-full px-3 py-2 sm:py-3 landscape:py-2 text-center text-base sm:text-xl landscape:text-base font-medium rounded-lg border outline-none transition-all ${
+                            checkedState.isChecked
+                              ? checkedState.isCorrect
+                                ? "border-zinc-700 bg-zinc-50 text-zinc-800"
+                                : "border-zinc-400 bg-zinc-50 text-zinc-800"
+                              : "border-zinc-300 focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600 bg-white"
+                          }`}
+                        />
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2 mt-2.5 sm:mt-3 landscape:mt-2">
+                        {!checkedState.isChecked ? (
+                          <>
+                            <button
+                              onClick={handleCheckAnswer}
+                              className="flex-1 py-2.5 sm:py-3 landscape:py-2 px-4 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800 text-white font-medium text-sm rounded-lg transition shadow-sm min-h-[42px] landscape:min-h-[38px] flex items-center justify-center"
+                            >
+                              Kiểm tra (Enter)
+                            </button>
+                            <button
+                              onClick={handleReveal}
+                              title="Xem đáp án nếu bạn chưa nhớ"
+                              className="py-2.5 sm:py-3 landscape:py-2 px-3.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-700 text-sm font-medium rounded-lg border border-zinc-200 transition min-h-[42px] landscape:min-h-[38px] shrink-0"
+                            >
+                              Xem đáp án
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={handleNext}
+                              className="flex-1 py-2.5 sm:py-3 landscape:py-2 px-4 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800 text-white font-medium text-sm rounded-lg transition shadow-sm min-h-[42px] landscape:min-h-[38px] flex items-center justify-center"
+                            >
+                              Từ tiếp theo →
+                            </button>
+                            {!checkedState.isCorrect && (
+                              <button
+                                onClick={() => {
+                                  soundFX.playClick();
+                                  setCheckedState({
+                                    isChecked: false,
+                                    isCorrect: false,
+                                    revealed: false,
+                                  });
+                                  setUserInput("");
+                                  inputRef.current?.focus();
+                                }}
+                                className="py-2.5 sm:py-3 landscape:py-2 px-3.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-700 text-sm font-medium rounded-lg border border-zinc-200 transition min-h-[42px] landscape:min-h-[38px] shrink-0"
+                              >
+                                Thử lại
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+
+                      {/* Feedback Banner */}
+                      {checkedState.isChecked && (
+                        <div
+                          className={`mt-2.5 sm:mt-4 landscape:mt-2 p-3 sm:p-4 landscape:p-2.5 rounded-xl border text-sm text-center transition-all ${
+                            checkedState.isCorrect
+                              ? "bg-zinc-100/90 border-zinc-300 text-zinc-800 shadow-sm"
+                              : "bg-zinc-50 border-zinc-300 text-zinc-800"
+                          }`}
+                        >
+                          <div className="flex items-center justify-center gap-1.5 font-semibold text-sm sm:text-base mb-1.5">
+                            {checkedState.isCorrect ? (
+                              <>
+                                <Check className="w-4 h-4 text-zinc-800" />
+                                <span>Chính xác! (+{10 + Math.min(currentStreak * 2, 20)} XP)</span>
+                              </>
+                            ) : (
+                              <>
+                                <X className="w-4 h-4 text-zinc-600" />
+                                <span>Chưa chính xác (hoặc đã xem đáp án)</span>
+                              </>
+                            )}
+                          </div>
+
+                          {!checkedState.isCorrect && (
+                            <div className="mb-1.5 pb-1.5 border-b border-zinc-200">
+                              <span className="text-[10px] sm:text-[11px] text-zinc-500 uppercase block mb-0.5">
+                                Cách đọc đúng:
+                              </span>
+                              <span className="text-base sm:text-lg font-bold text-zinc-800 font-mono">
+                                【 {currentItem.reading} 】
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Nghĩa của từ */}
+                          <div className="text-[10px] sm:text-[11px] text-zinc-500 uppercase font-semibold mb-0.5">
+                            Ý nghĩa:
+                          </div>
+                          <div className="text-sm sm:text-lg font-bold text-zinc-800 select-all leading-snug">
+                            {currentItem.meaning}
+                          </div>
+
+                          {/* Lưu ý & ghi chú đặc điểm */}
+                          {currentItem.notes && (
+                            <div className="mt-2 pt-1.5 border-t border-zinc-200/80 text-left bg-white/80 p-2 sm:p-2.5 rounded-lg border border-zinc-200">
+                              <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-0.5">
+                                Lưu ý & Ghi chú đặc điểm:
+                              </span>
+                              <p className="text-xs sm:text-sm text-zinc-800 leading-relaxed font-medium">
+                                {currentItem.notes}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1467,21 +1498,21 @@ export default function VocabQuizApp() {
         {tab === "match" && (
           <div className="flex flex-col gap-4">
             {/* Game Header Bar */}
-            <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="bg-white border border-zinc-200 rounded-xl p-3 sm:p-4 landscape:p-2.5 shadow-sm flex flex-col sm:flex-row landscape:flex-row items-center justify-between gap-2.5 sm:gap-3 landscape:gap-2">
               <div>
                 <div className="flex items-center gap-2">
                   <Gamepad2 className="w-5 h-5 text-zinc-700" />
-                  <h2 className="text-base font-bold text-zinc-800">
+                  <h2 className="text-sm sm:text-base font-bold text-zinc-800">
                     Trò chơi Ghép Thẻ Thần Tốc
                   </h2>
                 </div>
-                <p className="text-xs text-zinc-500">
+                <p className="text-[11px] sm:text-xs text-zinc-500 hidden sm:block landscape:hidden">
                   Chạm vào cặp Từ vựng và Cách đọc tương ứng nhanh nhất có thể!
                 </p>
               </div>
 
               {/* Match Game Controls */}
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="flex items-center gap-2 w-full sm:w-auto landscape:w-auto justify-between sm:justify-end landscape:justify-end">
                 {/* Mode toggle: Ghép cách đọc VS Ý nghĩa */}
                 <div className="flex bg-zinc-100 p-0.5 rounded-lg border border-zinc-200 text-xs">
                   <button
@@ -1514,14 +1545,14 @@ export default function VocabQuizApp() {
 
                 <div className="flex items-center gap-2">
                   {/* Timer */}
-                  <div className="flex items-center gap-1 font-mono font-bold text-sm bg-zinc-100 text-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-200">
+                  <div className="flex items-center gap-1 font-mono font-bold text-sm bg-zinc-100 text-zinc-800 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-zinc-200">
                     <Timer className="w-3.5 h-3.5 text-zinc-600" />
                     <span>{matchTimer.toFixed(1)}s</span>
                   </div>
 
                   <button
                     onClick={startNewMatchGame}
-                    className="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800 text-white text-xs font-medium rounded-lg transition shadow-sm"
+                    className="px-3 py-1 sm:py-1.5 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-800 text-white text-xs font-medium rounded-lg transition shadow-sm"
                   >
                     Ván mới
                   </button>
@@ -1529,9 +1560,9 @@ export default function VocabQuizApp() {
               </div>
             </div>
 
-            {/* Match Game Board Grid */}
+            {/* Match Game Board Grid (3 cols on portrait phone, 6 cols on landscape phone) */}
             {!isMatchFinished ? (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3.5">
+              <div className="grid grid-cols-3 sm:grid-cols-4 landscape:grid-cols-6 gap-2 sm:gap-3.5 landscape:gap-1.5">
                 {matchCards.map((card) => {
                   const isSelected = selectedCards.some((c) => c.id === card.id);
                   return (
@@ -1539,7 +1570,7 @@ export default function VocabQuizApp() {
                       key={card.id}
                       onClick={() => handleCardClick(card)}
                       disabled={card.matched}
-                      className={`min-h-[60px] sm:min-h-[90px] p-2 sm:p-3 rounded-xl border text-center flex flex-col items-center justify-center transition-all transform active:scale-95 ${
+                      className={`min-h-[56px] sm:min-h-[90px] landscape:min-h-[46px] p-1.5 sm:p-3 landscape:p-1 rounded-xl border text-center flex flex-col items-center justify-center transition-all transform active:scale-95 ${
                         card.matched
                           ? "bg-zinc-50 border-zinc-200/50 opacity-20 pointer-events-none scale-90"
                           : isSelected
@@ -1550,8 +1581,8 @@ export default function VocabQuizApp() {
                       <span
                         className={`font-bold select-none leading-tight break-words max-w-full ${
                           card.type === "word"
-                            ? "text-xs sm:text-xl font-bold"
-                            : "text-[11px] sm:text-base font-medium"
+                            ? "text-xs sm:text-xl landscape:text-xs font-bold"
+                            : "text-[11px] sm:text-base landscape:text-[11px] font-medium"
                         }`}
                       >
                         {card.text}
@@ -1644,21 +1675,21 @@ export default function VocabQuizApp() {
 
             {/* Speed Run Active Playing Arena */}
             {isSpeedRunning && speedCurrentWord && !isSpeedFinished ? (
-              <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-10 shadow-sm flex flex-col items-center text-center">
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 block mb-1">
+              <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-10 landscape:p-3 shadow-sm flex flex-col items-center text-center">
+                <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 block mb-0.5">
                   Chọn cách đọc đúng của từ:
                 </span>
-                <div className="text-3xl sm:text-6xl font-bold tracking-tight text-zinc-800 my-2 sm:my-4 select-all break-words">
+                <div className="text-3xl sm:text-6xl landscape:text-2xl font-bold tracking-tight text-zinc-800 my-2 sm:my-4 landscape:my-1 select-all break-words">
                   {speedCurrentWord.vocab}
                 </div>
 
-                {/* 4 Choices Grid (2x2 for mobile thumb ergonomics) */}
-                <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full max-w-md mt-2 sm:mt-4">
+                {/* 4 Choices Grid (2x2 on portrait, 4x1 on landscape) */}
+                <div className="grid grid-cols-2 landscape:grid-cols-4 gap-2 sm:gap-3 landscape:gap-1.5 w-full max-w-2xl mt-2 sm:mt-4 landscape:mt-1.5">
                   {speedOptions.map((opt, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleSpeedAnswer(opt)}
-                      className="py-3 sm:py-3.5 px-2 sm:px-4 bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 border border-zinc-200 hover:border-zinc-400 rounded-xl text-sm sm:text-base font-semibold text-zinc-800 transition shadow-sm active:scale-98 min-h-[44px]"
+                      className="py-3 sm:py-3.5 landscape:py-1.5 px-2 sm:px-4 bg-zinc-50 hover:bg-zinc-100 active:bg-zinc-200 border border-zinc-200 hover:border-zinc-400 rounded-xl text-sm sm:text-base landscape:text-xs font-semibold text-zinc-800 transition shadow-sm active:scale-98 min-h-[44px] landscape:min-h-[36px]"
                     >
                       {opt}
                     </button>

@@ -29,6 +29,14 @@ button, input, select, textarea, a {
   }
 }
 
+/* Landscape optimization for compact devices like iPhone 7 (height <= 450px) */
+@media screen and (orientation: landscape) and (max-height: 480px) {
+  main {
+    padding-top: 8px !important;
+    padding-bottom: 12px !important;
+  }
+}
+
 /* Custom minimal scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
