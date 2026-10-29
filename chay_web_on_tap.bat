@@ -8,5 +8,5 @@ echo   1. May tinh truy cap tai:       http://localhost:3000
 echo   2. Dien thoai (chung Wi-Fi):   http://192.168.1.233:3000
 echo ======================================================================
 echo.
-npm.cmd run start -- -H 0.0.0.0 -p 3000
+npm.cmd run start
 pause

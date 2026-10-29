@@ -4,7 +4,7 @@ const isGitHubPages = process.env.GITHUB_PAGES === 'true' || !!process.env.GITHU
 const basePath = isGitHubPages && repo ? `/${repo}` : '';
 
 const nextConfig = {
-  output: 'export',
+  ...(isGitHubPages ? { output: 'export' } : {}),
   images: {
     unoptimized: true,
   },
