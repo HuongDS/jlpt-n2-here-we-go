@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { VOCAB_LIST, VocabItem } from "@/data/vocabData";
 import { checkReadingMatch, speakJapanese, parseReadingField } from "@/lib/japaneseUtils";
 import { soundFX, triggerHaptic } from "@/lib/soundEffects";
+import { parseFileFromBrowser, fetchGoogleSheetCsv } from "@/lib/sheetParser";
 import {
   Volume2,
   VolumeX,
@@ -32,7 +33,10 @@ import {
   Zap,
   Timer,
   Trophy,
-  Volume1
+  Volume1,
+  Upload,
+  FileSpreadsheet,
+  Link2
 } from "lucide-react";
 
 type FilterType = "all" | "correct_answers" | "starred" | "wrong";
@@ -95,6 +99,10 @@ export default function VocabQuizApp() {
   // Jump to question modal
   const [isJumpModalOpen, setIsJumpModalOpen] = useState<boolean>(false);
   const [jumpInput, setJumpInput] = useState<string>("");
+
+  // Sync & Custom Vocab Modal
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState<boolean>(false);
+  const [googleSheetInput, setGoogleSheetInput] = useState<string>("");
 
   // --- GAME 1: MATCH PAIRS (GHÉP THẺ) STATE ---
   const [matchCards, setMatchCards] = useState<MatchCard[]>([]);
@@ -176,6 +184,22 @@ export default function VocabQuizApp() {
       const savedTableExpanded = localStorage.getItem("n2_table_expanded");
       if (savedTableExpanded !== null) setTableExpanded(JSON.parse(savedTableExpanded));
 
+      // Restore custom vocabulary if user previously imported Excel/CSV or Google Sheet
+      const savedCustomVocab = localStorage.getItem("n2_custom_vocab_list");
+      if (savedCustomVocab) {
+        try {
+          const parsed = JSON.parse(savedCustomVocab);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setRawList(parsed);
+          }
+        } catch {}
+      }
+
+      const savedSheetUrl = localStorage.getItem("n2_google_sheet_url");
+      if (savedSheetUrl) {
+        setGoogleSheetInput(savedSheetUrl);
+      }
+
       setSoundEnabled(soundFX.enabled);
     } catch {
       // ignore
@@ -255,31 +279,143 @@ export default function VocabQuizApp() {
     } catch {}
   }, [tableExpanded]);
 
-  // Sync function from sheet / API
+  // Apply new vocabulary list and persist to localStorage
+  const applyNewVocabList = (newList: VocabItem[], sourceName: string) => {
+    if (!Array.isArray(newList) || newList.length === 0) return;
+    const prevCount = rawList.length;
+    setRawList(newList);
+    try {
+      localStorage.setItem("n2_custom_vocab_list", JSON.stringify(newList));
+    } catch {}
+    const diff = newList.length - prevCount;
+    if (diff > 0) {
+      setSyncMessage(`Đã đồng bộ từ ${sourceName}: Nhận thêm +${diff} từ mới! (Tổng: ${newList.length} từ)`);
+    } else {
+      setSyncMessage(`Đã cập nhật từ ${sourceName} (${newList.length} từ vựng).`);
+    }
+    setTimeout(() => setSyncMessage(""), 5000);
+  };
+
+  // Sync function from sheet / API / static fallback
   const fetchLatestVocab = async (isManual = false) => {
     setIsSyncing(true);
-    try {
-      const res = await fetch(`/api/vocab?t=${Date.now()}`, { cache: "no-store" });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.items) && data.items.length > 0) {
-        const prevCount = rawList.length;
-        setRawList(data.items);
-        const diff = data.items.length - prevCount;
-        if (diff > 0) {
-          setSyncMessage(`Đã đồng bộ: Nhận thêm +${diff} từ mới từ file sheet!`);
-        } else if (isManual) {
-          setSyncMessage(`Đã đồng bộ từ ${data.source} (${data.items.length} từ).`);
+    let success = false;
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+    // 1. If user previously configured a Google Sheet URL, try fetching that first
+    const savedGoogleSheet = localStorage.getItem("n2_google_sheet_url");
+    if (savedGoogleSheet) {
+      try {
+        const sheetItems = await fetchGoogleSheetCsv(savedGoogleSheet);
+        if (sheetItems.length > 0) {
+          applyNewVocabList(sheetItems, "Google Sheet");
+          success = true;
         }
-        setTimeout(() => setSyncMessage(""), 5000);
+      } catch (err) {
+        console.warn("Google Sheet sync failed:", err);
+      }
+    }
+
+    // 2. Try server API /api/vocab (works on localhost & Node server)
+    if (!success) {
+      try {
+        const apiUrl = `${basePath}/api/vocab?t=${Date.now()}`;
+        const res = await fetch(apiUrl, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.items) && data.items.length > 0) {
+            applyNewVocabList(data.items, data.source || "file sheet");
+            success = true;
+          }
+        }
+      } catch (err) {
+        console.warn("API route not available, trying static fallback:", err);
+      }
+    }
+
+    // 3. Fallback to static public/data/vocab.json (works reliably on GitHub Pages!)
+    if (!success) {
+      try {
+        const staticUrl = `${basePath}/data/vocab.json?t=${Date.now()}`;
+        const res = await fetch(staticUrl);
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            applyNewVocabList(items, "kho dữ liệu hệ thống");
+            success = true;
+          }
+        }
+      } catch (err) {
+        console.warn("Static JSON fallback failed:", err);
+      }
+    }
+
+    setIsSyncing(false);
+
+    if (!success && isManual) {
+      // If none worked, open the Sync Modal so the user can directly pick file or paste Google Sheet
+      setIsSyncModalOpen(true);
+    }
+  };
+
+  // Client-side file upload (.xlsx, .csv)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsSyncing(true);
+      const items = await parseFileFromBrowser(file);
+      if (items.length > 0) {
+        applyNewVocabList(items, file.name);
+        setIsSyncModalOpen(false);
+      } else {
+        alert("Không tìm thấy dữ liệu từ vựng hợp lệ trong file này. Vui lòng kiểm tra lại file.");
       }
     } catch (err) {
-      console.error("Sync error:", err);
-      if (isManual) {
-        setSyncMessage("Không thể đọc file sheet. Vẫn dùng dữ liệu hiện có.");
-        setTimeout(() => setSyncMessage(""), 4000);
-      }
+      console.error("Error reading file:", err);
+      alert("Lỗi khi đọc file Excel/CSV. Vui lòng kiểm tra định dạng file!");
     } finally {
       setIsSyncing(false);
+      e.target.value = "";
+    }
+  };
+
+  // Google Sheet URL sync
+  const handleGoogleSheetSync = async () => {
+    if (!googleSheetInput.trim()) return;
+    try {
+      setIsSyncing(true);
+      const items = await fetchGoogleSheetCsv(googleSheetInput);
+      if (items.length > 0) {
+        try {
+          localStorage.setItem("n2_google_sheet_url", googleSheetInput.trim());
+        } catch {}
+        applyNewVocabList(items, "Google Sheet");
+        setIsSyncModalOpen(false);
+      } else {
+        alert("Không tìm thấy dòng từ vựng nào từ Google Sheet này.");
+      }
+    } catch (err: unknown) {
+      console.error("Error fetching Google Sheet:", err);
+      const msg = err instanceof Error ? err.message : "Không thể tải Google Sheet";
+      alert(`${msg}. Vui lòng kiểm tra xem bạn đã chia sẻ quyền 'Bất kỳ ai có đường liên kết đều có thể xem' chưa.`);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Reset to default 212 vocabulary items
+  const handleResetToDefault = () => {
+    if (confirm("Bạn có chắc muốn khôi phục về danh sách 212 từ gốc mặc định không?")) {
+      try {
+        localStorage.removeItem("n2_custom_vocab_list");
+        localStorage.removeItem("n2_google_sheet_url");
+      } catch {}
+      setGoogleSheetInput("");
+      setRawList(VOCAB_LIST);
+      setSyncMessage("Đã khôi phục về danh sách từ vựng gốc (212 từ).");
+      setTimeout(() => setSyncMessage(""), 4000);
+      setIsSyncModalOpen(false);
     }
   };
 
@@ -772,9 +908,9 @@ export default function VocabQuizApp() {
 
               {/* Sync button */}
               <button
-                onClick={() => fetchLatestVocab(true)}
+                onClick={() => setIsSyncModalOpen(true)}
                 disabled={isSyncing}
-                title="Đồng bộ từ mới nhất từ file Sheet/Excel"
+                title="Cập nhật & Đồng bộ từ vựng (Excel, Google Sheet, Máy chủ)"
                 className="flex items-center gap-1 px-2 py-1 text-[11px] sm:text-xs font-medium text-zinc-700 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 rounded-md border border-zinc-200 transition"
               >
                 <RefreshCw
@@ -2079,6 +2215,114 @@ export default function VocabQuizApp() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* SYNC & UPDATE VOCABULARY MODAL */}
+      {isSyncModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+          <div className="bg-white border border-zinc-300 rounded-2xl p-4 sm:p-6 max-w-md w-full shadow-2xl flex flex-col max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+              <div className="flex items-center gap-2">
+                <RefreshCw className="w-5 h-5 text-zinc-700" />
+                <h3 className="text-base font-bold text-zinc-800">
+                  Cập Nhật & Đồng Bộ Từ Vựng
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsSyncModalOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-zinc-500 my-3 leading-relaxed">
+              Bạn có thể cập nhật từ mới bất kỳ lúc nào trên cả điện thoại và máy tính bằng các cách sau:
+            </p>
+
+            {/* Method 1: Upload File Excel / CSV directly from device */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3.5 mb-3">
+              <div className="flex items-center gap-2 mb-1.5 font-semibold text-xs sm:text-sm text-zinc-800">
+                <FileSpreadsheet className="w-4 h-4 text-zinc-700" />
+                <span>Cách 1: Tải file Excel (.xlsx) hoặc CSV từ máy</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 mb-2.5 leading-relaxed">
+                Nạp file <code>Tu_Vung_On_Tap_JLPT_N2.xlsx</code> hoặc <code>.csv</code> trực tiếp từ điện thoại hoặc máy tính của bạn (đọc trực tiếp tại chỗ, không cần server):
+              </p>
+              <label className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-zinc-700 hover:bg-zinc-800 active:bg-zinc-900 text-white text-xs font-semibold rounded-lg cursor-pointer transition shadow-sm">
+                <Upload className="w-4 h-4" />
+                <span>Chọn file từ thiết bị</span>
+                <input
+                  type="file"
+                  accept=".xlsx, .xls, .csv"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+              </label>
+            </div>
+
+            {/* Method 2: Google Sheets URL */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3.5 mb-3">
+              <div className="flex items-center gap-2 mb-1.5 font-semibold text-xs sm:text-sm text-zinc-800">
+                <Link2 className="w-4 h-4 text-zinc-700" />
+                <span>Cách 2: Đồng bộ qua link Google Sheet</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                Dán link Google Sheet (đã bật quyền xem công khai) để tự động cập nhật trực tuyến:
+              </p>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="url"
+                  value={googleSheetInput}
+                  onChange={(e) => setGoogleSheetInput(e.target.value)}
+                  placeholder="https://docs.google.com/spreadsheets/d/..."
+                  className="flex-1 px-3 py-2 text-xs bg-white border border-zinc-300 rounded-lg outline-none focus:border-zinc-700 font-mono"
+                />
+                <button
+                  onClick={handleGoogleSheetSync}
+                  disabled={isSyncing || !googleSheetInput.trim()}
+                  className="py-2 px-3 bg-zinc-700 hover:bg-zinc-800 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition shrink-0"
+                >
+                  {isSyncing ? "Đang tải..." : "Đồng bộ"}
+                </button>
+              </div>
+            </div>
+
+            {/* Method 3: System / Server Sync */}
+            <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3.5 mb-3">
+              <div className="flex items-center gap-2 mb-1.5 font-semibold text-xs sm:text-sm text-zinc-800">
+                <RefreshCw className="w-4 h-4 text-zinc-700" />
+                <span>Cách 3: Tải từ kho dữ liệu hệ thống / GitHub</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 mb-2 leading-relaxed">
+                Đồng bộ lại từ máy chủ nội bộ hoặc kho lưu trữ tĩnh GitHub Pages:
+              </p>
+              <button
+                onClick={() => fetchLatestVocab(true)}
+                disabled={isSyncing}
+                className="w-full py-2 px-3 bg-white hover:bg-zinc-100 border border-zinc-300 text-zinc-700 text-xs font-medium rounded-lg transition"
+              >
+                {isSyncing ? "Đang kết nối..." : "Tải từ máy chủ / GitHub"}
+              </button>
+            </div>
+
+            {/* Reset to Default */}
+            <div className="pt-2 flex items-center justify-between text-xs border-t border-zinc-150">
+              <button
+                onClick={handleResetToDefault}
+                className="text-zinc-400 hover:text-zinc-600 underline"
+              >
+                Khôi phục về 212 từ gốc
+              </button>
+              <button
+                onClick={() => setIsSyncModalOpen(false)}
+                className="px-4 py-1.5 bg-zinc-200 hover:bg-zinc-300 text-zinc-800 rounded-lg font-medium"
+              >
+                Đóng
+              </button>
+            </div>
           </div>
         </div>
       )}
