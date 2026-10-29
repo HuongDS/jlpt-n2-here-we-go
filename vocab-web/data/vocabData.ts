@@ -1,0 +1,1920 @@
+export interface VocabItem {
+  id: number;
+  vocab: string;
+  reading: string;
+  meaning: string;
+  example: string;
+  notes: string;
+  isCorrect: boolean;
+}
+
+export const VOCAB_LIST: VocabItem[] = [
+  {
+    "id": 1,
+    "vocab": "ストライキ",
+    "reading": "ストライキ",
+    "meaning": "Đình công, bãi công",
+    "example": "ストライキを起こす (tổ chức bãi công)",
+    "notes": "Từ tiếng Anh 'strike'. Dùng cho người lao động, công nhân bãi công.",
+    "isCorrect": false
+  },
+  {
+    "id": 2,
+    "vocab": "パンク",
+    "reading": "パンク",
+    "meaning": "Thủng lốp, xịt lốp, nổ lốp",
+    "example": "自転車のタイヤがパンクする (lốp xe đạp bị thủng xịt)",
+    "notes": "[Đáp án đúng câu 166] Từ tiếng Anh 'puncture'.",
+    "isCorrect": true
+  },
+  {
+    "id": 3,
+    "vocab": "ダウン",
+    "reading": "ダウン",
+    "meaning": "Gục ngã, kiệt sức, sập hệ thống",
+    "example": "システムダウン (sập hệ thống), 風邪でダウンする (gục ngã vì cảm cúm)",
+    "notes": "Từ tiếng Anh 'down'.",
+    "isCorrect": false
+  },
+  {
+    "id": 4,
+    "vocab": "ミス",
+    "reading": "ミス",
+    "meaning": "Lỗi sai, nhầm lẫn",
+    "example": "計算ミス (lỗi tính toán), ミスを犯す (phạm lỗi)",
+    "notes": "Từ tiếng Anh 'mistake'.",
+    "isCorrect": false
+  },
+  {
+    "id": 5,
+    "vocab": "遅くとも",
+    "reading": "おそくとも",
+    "meaning": "Chậm nhất là, muộn nhất là",
+    "example": "遅くとも明日までに提出してください (chậm nhất là ngày mai phải nộp)",
+    "notes": "Chỉ mốc giới hạn thời gian muộn nhất.",
+    "isCorrect": false
+  },
+  {
+    "id": 6,
+    "vocab": "あらかじめ",
+    "reading": "あらかじめ",
+    "meaning": "Sẵn từ trước (= 前もって)",
+    "example": "あらかじめコピーしておく (photo sẵn từ trước)",
+    "notes": "[Đáp án đúng câu 167] Thường đi kèm mẫu câu chuẩn bị `～ておく`.",
+    "isCorrect": true
+  },
+  {
+    "id": 7,
+    "vocab": "とっくに",
+    "reading": "とっくに",
+    "meaning": "Từ lâu rồi, từ thuở nào rồi",
+    "example": "彼はとっくに帰ったよ (anh ấy về từ lâu lắm rồi)",
+    "notes": "Diễn tả sự việc đã xong xuôi từ lâu trong quá khứ.",
+    "isCorrect": false
+  },
+  {
+    "id": 8,
+    "vocab": "先々",
+    "reading": "さきざき",
+    "meaning": "Tương lai xa; nơi này nơi kia",
+    "example": "先々のことを心配する (lo nghĩ về tương lai xa)",
+    "notes": "Chỉ tương lai dài hạn về sau.",
+    "isCorrect": false
+  },
+  {
+    "id": 9,
+    "vocab": "体格",
+    "reading": "たいかく",
+    "meaning": "Thể hình, vóc dáng, tạng người",
+    "example": "がっしりした体格をしている (có vóc dáng vạm vỡ, rắn chắc)",
+    "notes": "[Đáp án đúng câu 168] Collocation N2 kinh điển đi với がっしり.",
+    "isCorrect": true
+  },
+  {
+    "id": 10,
+    "vocab": "姿勢",
+    "reading": "しせい",
+    "meaning": "Tư thế đi đứng; thái độ",
+    "example": "姿勢を正す (ngồi thẳng lưng ngay ngắn), 前向きな姿勢 (thái độ cầu tiến)",
+    "notes": "Chỉ dáng người đi đứng hoặc thái độ đối với vấn đề.",
+    "isCorrect": false
+  },
+  {
+    "id": 11,
+    "vocab": "格好",
+    "reading": "かっこう",
+    "meaning": "Diện mạo bề ngoài, ăn mặc, dáng vẻ",
+    "example": "格好をつける (làm màu, làm điệu), みっともない格好 (ăn mặc luộm thuộm)",
+    "notes": "Nói về phong cách ăn mặc hoặc vẻ bề ngoài.",
+    "isCorrect": false
+  },
+  {
+    "id": 12,
+    "vocab": "容姿",
+    "reading": "ようし",
+    "meaning": "Dung nhan, dung mạo diện mạo",
+    "example": "容姿端麗 (dung mạo đoan trang, ưa nhìn)",
+    "notes": "Chỉ nhan sắc khuôn mặt, diện mạo bên ngoài.",
+    "isCorrect": false
+  },
+  {
+    "id": 13,
+    "vocab": "かかわり合う",
+    "reading": "かかわりあう",
+    "meaning": "Dính líu, can hệ vào",
+    "example": "事件にかかわり合う (dính líu tới vụ việc rắc rối)",
+    "notes": "Dính dáng tới việc phiền toái không mong muốn.",
+    "isCorrect": false
+  },
+  {
+    "id": 14,
+    "vocab": "割り込む",
+    "reading": "わりこむ",
+    "meaning": "Chen ngang, chen hàng, xen vào",
+    "example": "列に割り込む (chen hàng), 人の話に割り込む (nói leo, chen ngang)",
+    "notes": "Hành động xen vào giữa hàng lối hoặc câu chuyện.",
+    "isCorrect": false
+  },
+  {
+    "id": 15,
+    "vocab": "引っかかる",
+    "reading": "ひっかかる",
+    "meaning": "Mắc kẹt, vướng vào bẫy",
+    "example": "網に引っかかる (vướng vào lưới), 罠に引っかかる (mắc bẫy)",
+    "notes": "Bị vướng hoặc bị lừa gạt.",
+    "isCorrect": false
+  },
+  {
+    "id": 16,
+    "vocab": "差し支える",
+    "reading": "さしつかえる",
+    "meaning": "Gây cản trở, làm ảnh hưởng xấu",
+    "example": "明日の仕事に差し支える (gây ảnh hưởng xấu tới công việc ngày mai)",
+    "notes": "[Đáp án đúng câu 169] Cụm thi N2: `～に差し支える`.",
+    "isCorrect": true
+  },
+  {
+    "id": 17,
+    "vocab": "思いきって",
+    "reading": "おもいきって",
+    "meaning": "Dứt khoát, mạnh dạn, đánh bạo",
+    "example": "親友に思いきって相談する (lấy hết can đảm tâm sự với bạn thân)",
+    "notes": "[Đáp án đúng câu 170] Mạnh dạn hành động sau nhiều trăn trở.",
+    "isCorrect": true
+  },
+  {
+    "id": 18,
+    "vocab": "うっかり",
+    "reading": "うっかり",
+    "meaning": "Lơ đễnh, vô ý, sơ ý",
+    "example": "うっかり忘れる (lơ đễnh quên mất), うっかり口を滑らす (buột miệng)",
+    "notes": "Sơ suất không để ý dẫn tới làm sai.",
+    "isCorrect": false
+  },
+  {
+    "id": 19,
+    "vocab": "せっかく",
+    "reading": "せっかく",
+    "meaning": "Mất công, cất công, bõ công",
+    "example": "せっかくの休みなのに (uổng công ngày nghỉ quý giá)",
+    "notes": "Thể hiện sự trân trọng cơ hội hoặc tiếc nuối khi bỏ lỡ.",
+    "isCorrect": false
+  },
+  {
+    "id": 20,
+    "vocab": "知らず知らず",
+    "reading": "しらずしらず",
+    "meaning": "Vô thức, từ lúc nào không hay",
+    "example": "知らず知らずのうちに夜になった (trời tối từ lúc nào không hay)",
+    "notes": "Diễn ra tự nhiên không tự nhận biết được.",
+    "isCorrect": false
+  },
+  {
+    "id": 21,
+    "vocab": "交換",
+    "reading": "こうかん",
+    "meaning": "Trao đổi, đổi chác đồ vật",
+    "example": "名刺を交換する (trao đổi danh thiếp), 意見交換 (trao đổi ý kiến)",
+    "notes": "Đổi đồ này lấy đồ khác qua lại giữa hai bên.",
+    "isCorrect": false
+  },
+  {
+    "id": 22,
+    "vocab": "改訂",
+    "reading": "かいてい",
+    "meaning": "Sửa đổi, tái bản sách/văn bản",
+    "example": "教科書を改訂する (sửa đổi nội dung tái bản sách giáo khoa)",
+    "notes": "Dùng cho việc chỉnh sửa sách vở, từ điển, điều lệ xuất bản.",
+    "isCorrect": false
+  },
+  {
+    "id": 23,
+    "vocab": "変換",
+    "reading": "へんかん",
+    "meaning": "Chuyển đổi dạng/chữ viết",
+    "example": "漢字に変換する (chuyển đổi từ hiragana sang kanji)",
+    "notes": "Chuyển đổi hình thức hoặc định dạng trên thiết bị điện tử.",
+    "isCorrect": false
+  },
+  {
+    "id": 24,
+    "vocab": "訂正",
+    "reading": "ていせい",
+    "meaning": "Đính chính, sửa lỗi sai câu chữ/số liệu",
+    "example": "誤りを訂正する (sửa chữa, đính chính các lỗi sai)",
+    "notes": "[Đáp án đúng câu 171] Sửa lỗi sai cụ thể trong bài viết/phát ngôn.",
+    "isCorrect": true
+  },
+  {
+    "id": 25,
+    "vocab": "とらえる",
+    "reading": "とらえる (捉える)",
+    "meaning": "Bắt lấy, nắm bắt (cơ hội, bản chất)",
+    "example": "チャンスをとらえる (nắm bắt cơ hội), 特徴をとらえる (nắm bắt đặc trưng)",
+    "notes": "Bắt giữ hoặc nắm được cốt lõi vấn đề.",
+    "isCorrect": false
+  },
+  {
+    "id": 26,
+    "vocab": "めざす",
+    "reading": "めざす (目指す)",
+    "meaning": "Nhắm tới, hướng tới mục tiêu",
+    "example": "優勝を目指す (hướng tới mục tiêu vô địch)",
+    "notes": "[Đáp án đúng câu 172] Cụm từ thi N2: `～を目指す`.",
+    "isCorrect": true
+  },
+  {
+    "id": 27,
+    "vocab": "みはる",
+    "reading": "みはる (見張る)",
+    "meaning": "Canh chừng, theo dõi, giám sát",
+    "example": "見張り番をする (canh gác), 目を見張る (tròn xoe mắt thán phục)",
+    "notes": "Giám sát trông coi cẩn mật.",
+    "isCorrect": false
+  },
+  {
+    "id": 28,
+    "vocab": "にぎる",
+    "reading": "にぎる (握る)",
+    "meaning": "Nắm chặt tay; nắm quyền lực",
+    "example": "手を握る (nắm chặt tay), 権力を握る (nắm quyền)",
+    "notes": "Nắm vật lý trong lòng bàn tay hoặc kiểm soát quyền hành.",
+    "isCorrect": false
+  },
+  {
+    "id": 29,
+    "vocab": "一気に",
+    "reading": "いっきに",
+    "meaning": "Một mạch, một lèo, một hơi",
+    "example": "小説を最後まで一気に読む (đọc một mạch cuốn tiểu thuyết tới cuối)",
+    "notes": "[Đáp án đúng câu 173] Làm liên tục từ đầu đến cuối không dừng.",
+    "isCorrect": true
+  },
+  {
+    "id": 30,
+    "vocab": "一時的に",
+    "reading": "いちじてきに",
+    "meaning": "Tạm thời, nhất thời",
+    "example": "一時的に営業を停止する (tạm thời dừng kinh doanh)",
+    "notes": "Chỉ diễn ra trong một khoảng thời gian ngắn.",
+    "isCorrect": false
+  },
+  {
+    "id": 31,
+    "vocab": "一斉に",
+    "reading": "いっせいに",
+    "meaning": "Đồng loạt, cùng một lúc",
+    "example": "一斉に立ち上がる (đồng loạt đứng dậy)",
+    "notes": "Nhiều người/đối tượng cùng hành động một thời điểm.",
+    "isCorrect": false
+  },
+  {
+    "id": 32,
+    "vocab": "一方的に",
+    "reading": "いっぽうてきに",
+    "meaning": "Đơn phương, một chiều",
+    "example": "一方的に話を打ち切る (đơn phương cắt ngang câu chuyện)",
+    "notes": "Chỉ từ một phía, không lắng nghe phía còn lại.",
+    "isCorrect": false
+  },
+  {
+    "id": 33,
+    "vocab": "蓄える",
+    "reading": "たくわえる",
+    "meaning": "Tích lũy, tích trữ (kiến thức, tài lực)",
+    "example": "必要な知識を蓄える (tích lũy kiến thức cần thiết)",
+    "notes": "[Đáp án đúng câu 174] Đi với 知識 (kiến thức), 力 (sức lực), お金 (tiền bạc).",
+    "isCorrect": true
+  },
+  {
+    "id": 34,
+    "vocab": "招く",
+    "reading": "まねく",
+    "meaning": "Mời gọi; chuốc lấy tai họa",
+    "example": "誤解を招く (chuốc lấy hiểu lầm), 事故を招く (gây ra tai nạn)",
+    "notes": "Dẫn tới hậu quả tiêu cực không mong muốn.",
+    "isCorrect": false
+  },
+  {
+    "id": 35,
+    "vocab": "抱える",
+    "reading": "かかえる",
+    "meaning": "Ôm; gánh vác món nợ/nỗi lo",
+    "example": "借金／悩みを抱える (gánh nặng nợ nần/ôm nỗi âu lo)",
+    "notes": "Gánh nặng tâm lý hoặc vấn đề khó giải quyết.",
+    "isCorrect": false
+  },
+  {
+    "id": 36,
+    "vocab": "結ぶ",
+    "reading": "むすぶ",
+    "meaning": "Buộc dây; ký kết hợp đồng",
+    "example": "契約を結ぶ (ký kết hợp đồng), 靴ひもを結ぶ (buộc dây giày)",
+    "notes": "Thắt nút vật lý hoặc xác lập quan hệ hợp tác.",
+    "isCorrect": false
+  },
+  {
+    "id": 37,
+    "vocab": "ダウン",
+    "reading": "ダウン",
+    "meaning": "Gục ngã, kiệt sức",
+    "example": "疲労でダウンする (kiệt sức gục ngã vì mệt)",
+    "notes": "Từ tiếng Anh 'down'.",
+    "isCorrect": false
+  },
+  {
+    "id": 38,
+    "vocab": "キャンセル",
+    "reading": "キャンセル",
+    "meaning": "Hủy bỏ lịch hẹn/vé",
+    "example": "予約をキャンセルする (hủy lịch đặt chỗ)",
+    "notes": "Từ tiếng Anh 'cancel'.",
+    "isCorrect": false
+  },
+  {
+    "id": 39,
+    "vocab": "クリア",
+    "reading": "クリア",
+    "meaning": "Vượt qua thử thách, tiêu chuẩn",
+    "example": "条件をクリアする (vượt qua các điều kiện yêu cầu)",
+    "notes": "Từ tiếng Anh 'clear'.",
+    "isCorrect": false
+  },
+  {
+    "id": 40,
+    "vocab": "リラックス",
+    "reading": "リラックス",
+    "meaning": "Thư giãn tâm trí, thả lỏng cơ thể",
+    "example": "音楽を聞いてリラックスする (nghe nhạc thư giãn)",
+    "notes": "[Đáp án đúng câu 175] Từ tiếng Anh 'relax'.",
+    "isCorrect": true
+  },
+  {
+    "id": 41,
+    "vocab": "ぎっしり",
+    "reading": "ぎっしり",
+    "meaning": "Kín mít, chật ních",
+    "example": "本棚に本がぎっしり並ぶ (sách xếp chật kín giá)",
+    "notes": "Không còn khoảng trống nào.",
+    "isCorrect": false
+  },
+  {
+    "id": 42,
+    "vocab": "いきいき",
+    "reading": "いきいき",
+    "meaning": "Sống động, tươi tắn, hoạt bát",
+    "example": "生き生きと働く (làm việc tràn đầy sức sống)",
+    "notes": "Trạng thái rạng rỡ, phấn chấn.",
+    "isCorrect": false
+  },
+  {
+    "id": 43,
+    "vocab": "うとうと",
+    "reading": "うとうと",
+    "meaning": "Thiu thiu ngủ gật, lơ mơ",
+    "example": "本を読みながらついうとうとする (vừa đọc sách vừa ngủ gật thiu thiu)",
+    "notes": "[Đáp án đúng câu 176] Ngủ gật chập chờn do mệt mỏi.",
+    "isCorrect": true
+  },
+  {
+    "id": 44,
+    "vocab": "さっぱり",
+    "reading": "さっぱり",
+    "meaning": "Sảng khoái; hoàn toàn (không)",
+    "example": "風呂に入ってさっぱりした (tắm xong thấy khoan khoái sảng khoái)",
+    "notes": "Khoan khoái sạch sẽ; hoặc phủ định `さっぱり分からない`.",
+    "isCorrect": false
+  },
+  {
+    "id": 45,
+    "vocab": "得点",
+    "reading": "とくてん",
+    "meaning": "Điểm số đạt được trong thi đấu",
+    "example": "得点を挙げる (ghi điểm số trong trận đấu)",
+    "notes": "Điểm thi đấu thể thao hoặc bài kiểm tra.",
+    "isCorrect": false
+  },
+  {
+    "id": 46,
+    "vocab": "性能",
+    "reading": "せいのう",
+    "meaning": "Tính năng kỹ thuật của máy móc",
+    "example": "この車の性能は素晴らしい (tính năng của chiếc xe này rất tuyệt)",
+    "notes": "Dùng cho máy móc công nghệ, thiết bị điện tử.",
+    "isCorrect": false
+  },
+  {
+    "id": 47,
+    "vocab": "効用",
+    "reading": "こうよう",
+    "meaning": "Công dụng, ích lợi",
+    "example": "温泉の効用 (công dụng trị liệu của suối nước nóng)",
+    "notes": "Hiệu ích thực tế của thuốc, suối khoáng.",
+    "isCorrect": false
+  },
+  {
+    "id": 48,
+    "vocab": "特色",
+    "reading": "とくしょく",
+    "meaning": "Đặc sắc, điểm nổi bật đặc trưng",
+    "example": "学校の特色 (điểm đặc sắc nổi bật của trường học)",
+    "notes": "[Đáp án đúng câu 177] Nét riêng nổi bật tích cực của tập thể/trường học.",
+    "isCorrect": true
+  },
+  {
+    "id": 49,
+    "vocab": "すっきり",
+    "reading": "すっきり",
+    "meaning": "Gọn gàng, nhẹ nhõm, thông thoáng",
+    "example": "気分がすっきりする (tâm trạng nhẹ nhõm)",
+    "notes": "Tâm trạng thoải mái hoặc căn phòng gọn gàng.",
+    "isCorrect": false
+  },
+  {
+    "id": 50,
+    "vocab": "ぎっしり",
+    "reading": "ぎっしり",
+    "meaning": "Chật cứng, đầy ắp",
+    "example": "予定がぎっしり詰まっている (lịch trình kín mít)",
+    "notes": "Lịch trình hoặc đồ vật được lèn chặt.",
+    "isCorrect": false
+  },
+  {
+    "id": 51,
+    "vocab": "びっしょり",
+    "reading": "びっしょり",
+    "meaning": "Ướt sũng, ướt như chuột lột",
+    "example": "服がびっしょりぬれてしまった (quần áo ướt sũng)",
+    "notes": "[Đáp án đúng câu 178] Ướt đẫm nước mưa hoặc mồ hôi (= びしょびしょ).",
+    "isCorrect": true
+  },
+  {
+    "id": 52,
+    "vocab": "ぴったり",
+    "reading": "ぴったり",
+    "meaning": "Vừa khít, vừa in",
+    "example": "サイズがぴったり合う (kích cỡ vừa khít hoàn hảo)",
+    "notes": "Khớp chuẩn xác về kích cỡ, giờ giấc.",
+    "isCorrect": false
+  },
+  {
+    "id": 53,
+    "vocab": "力強い",
+    "reading": "ちからづよい",
+    "meaning": "Mạnh mẽ, đầy sức mạnh",
+    "example": "力強い味方 (chỗ dựa/đồng minh mạnh mẽ vững vàng)",
+    "notes": "Tạo cảm giác chắc nịch, khỏe khoắn.",
+    "isCorrect": false
+  },
+  {
+    "id": 54,
+    "vocab": "輝かしい",
+    "reading": "かがやかしい",
+    "meaning": "Rực rỡ, huy hoàng, vẻ vang",
+    "example": "輝かしい成績を残す (để lại những thành tích vẻ vang)",
+    "notes": "[Đáp án đúng câu 179] Đi với 成績 (thành tích), 未来 (tương lai), 伝統 (truyền thống).",
+    "isCorrect": true
+  },
+  {
+    "id": 55,
+    "vocab": "分厚い",
+    "reading": "ぶあつい",
+    "meaning": "Dày cộp (sách, ví)",
+    "example": "分厚い辞書 (cuốn từ điển dày cộp)",
+    "notes": "Độ dày vật lý của vật thể.",
+    "isCorrect": false
+  },
+  {
+    "id": 56,
+    "vocab": "限らない",
+    "reading": "かぎらない",
+    "meaning": "Không nhất thiết là, chưa hẳn",
+    "example": "～とは限らない (chưa hẳn là như vậy)",
+    "notes": "Mẫu ngữ pháp chỉ tính không khẳng định tuyệt đối.",
+    "isCorrect": false
+  },
+  {
+    "id": 57,
+    "vocab": "当たる",
+    "reading": "あたる",
+    "meaning": "Va trúng; trúng thưởng",
+    "example": "宝くじに当たる (trúng vé số)",
+    "notes": "Va quệt phải hoặc trúng thưởng.",
+    "isCorrect": false
+  },
+  {
+    "id": 58,
+    "vocab": "触れる",
+    "reading": "ふれる",
+    "meaning": "Chạm khẽ vào; đề cập tới",
+    "example": "作品に手を触れないでください (xin đừng chạm tay vào tác phẩm)",
+    "notes": "Chạm nhẹ tay hoặc nhắc tới vấn đề nhạy cảm.",
+    "isCorrect": false
+  },
+  {
+    "id": 59,
+    "vocab": "面する",
+    "reading": "めんする",
+    "meaning": "Hướng ra, giáp mặt với (đường, biển)",
+    "example": "ホテルは大通りに面している (khách sạn có mặt tiền hướng ra đường lớn)",
+    "notes": "[Đáp án đúng câu 180] Cụm: `～に面している`.",
+    "isCorrect": true
+  },
+  {
+    "id": 60,
+    "vocab": "合わせる",
+    "reading": "あわせる",
+    "meaning": "Kết hợp, chỉnh cho vừa khớp",
+    "example": "声を合わせる (đồng thanh hòa giọng), 時計を合わせる (chỉnh giờ)",
+    "notes": "Chỉnh cho trùng khớp hoặc đồng lòng.",
+    "isCorrect": false
+  },
+  {
+    "id": 61,
+    "vocab": "鋭い",
+    "reading": "するどい",
+    "meaning": "Sắc bén, sắc sảo, trúng tim đen",
+    "example": "鋭い質問 (câu hỏi sắc sảo, hóc búa)",
+    "notes": "[Đáp án đúng câu 181] Chỉ câu hỏi tinh tường hoặc ánh mắt sắc lẹm.",
+    "isCorrect": true
+  },
+  {
+    "id": 62,
+    "vocab": "鈍い",
+    "reading": "にぶい",
+    "meaning": "Cùn; chậm chạp, đờ đẫn",
+    "example": "感覚／反応が鈍い (cảm giác/phản xạ chậm chạp)",
+    "notes": "Dao cùn hoặc phản xạ không nhạy.",
+    "isCorrect": false
+  },
+  {
+    "id": 63,
+    "vocab": "険しい",
+    "reading": "けわしい",
+    "meaning": "Hiểm trở; nghiêm nghị gay gắt",
+    "example": "険しい山道 (đường núi hiểm trở), 険しい表情 (vẻ mặt gay gắt)",
+    "notes": "Địa hình dốc hoặc nét mặt căng thẳng.",
+    "isCorrect": false
+  },
+  {
+    "id": 64,
+    "vocab": "緩い",
+    "reading": "ゆるい",
+    "meaning": "Lỏng lẻo; thoai thoải nhẹ",
+    "example": "ベルトが緩い (thắt lưng bị lỏng), 緩い坂 (con dốc lài nhẹ)",
+    "notes": "Dây buộc lỏng hoặc độ dốc thấp.",
+    "isCorrect": false
+  },
+  {
+    "id": 65,
+    "vocab": "インテリア",
+    "reading": "インテリア",
+    "meaning": "Nội thất bên trong nhà",
+    "example": "インテリア雑貨 (đồ trang trí nội thất)",
+    "notes": "Từ tiếng Anh 'interior'. Tổng thể cách bày trí phòng.",
+    "isCorrect": false
+  },
+  {
+    "id": 66,
+    "vocab": "スペース",
+    "reading": "スペース",
+    "meaning": "Không gian, chỗ trống",
+    "example": "駐車スペース (chỗ đỗ xe)",
+    "notes": "Từ tiếng Anh 'space'.",
+    "isCorrect": false
+  },
+  {
+    "id": 67,
+    "vocab": "リビング",
+    "reading": "リビング",
+    "meaning": "Phòng khách gia đình",
+    "example": "広いリビングでくつろぐ (nghỉ ngơi ở phòng khách rộng)",
+    "notes": "Từ tiếng Anh 'living room'.",
+    "isCorrect": false
+  },
+  {
+    "id": 68,
+    "vocab": "デザイン",
+    "reading": "デザイン",
+    "meaning": "Kiểu dáng, mẫu mã thiết kế",
+    "example": "色やデザインが気に入る (thích màu sắc và kiểu dáng thiết kế)",
+    "notes": "[Đáp án đúng câu 182] Từ tiếng Anh 'design'. Kiểu dáng của sản phẩm cụ thể.",
+    "isCorrect": true
+  },
+  {
+    "id": 69,
+    "vocab": "快適な",
+    "reading": "かいてきな",
+    "meaning": "Dễ chịu, thoải mái, tiện nghi",
+    "example": "快適な生活を送る (sống một cuộc sống tiện nghi thoải mái)",
+    "notes": "Môi trường sống, điều hòa mát mẻ.",
+    "isCorrect": false
+  },
+  {
+    "id": 70,
+    "vocab": "柔軟な",
+    "reading": "じゅうなんな",
+    "meaning": "Linh hoạt, mềm dẻo",
+    "example": "柔軟な思考を持つ (có tư duy linh hoạt)",
+    "notes": "[Đáp án đúng câu 183] Cụm: `柔軟な思考 / 柔軟に対応する`.",
+    "isCorrect": true
+  },
+  {
+    "id": 71,
+    "vocab": "円満な",
+    "reading": "えんまんな",
+    "meaning": "Viên mãn, hòa thuận, êm đẹp",
+    "example": "円満な家庭 (gia đình hòa thuận), 円満解決 (giải quyết êm đẹp)",
+    "notes": "Các mối quan hệ êm ấm không xích mích.",
+    "isCorrect": false
+  },
+  {
+    "id": 72,
+    "vocab": "順調な",
+    "reading": "じゅんちょうな",
+    "meaning": "Thuận lợi, trôi chảy",
+    "example": "仕事は順調に進んでいる (công việc đang tiến triển thuận lợi)",
+    "notes": "Tiến độ diễn ra đúng dự kiến.",
+    "isCorrect": false
+  },
+  {
+    "id": 73,
+    "vocab": "予測",
+    "reading": "よそく",
+    "meaning": "Dự đoán (có căn cứ khoa học, dữ liệu)",
+    "example": "データから人口を予測する (dự đoán dân số từ các dữ liệu thống kê)",
+    "notes": "[Đáp án đúng câu 184] Phán đoán xu hướng tương lai dựa trên số liệu.",
+    "isCorrect": true
+  },
+  {
+    "id": 74,
+    "vocab": "予報",
+    "reading": "よほう",
+    "meaning": "Dự báo (thời tiết)",
+    "example": "天気予報を見る (xem dự báo thời tiết)",
+    "notes": "Chuyên dùng cho thời tiết khí tượng.",
+    "isCorrect": false
+  },
+  {
+    "id": 75,
+    "vocab": "予感",
+    "reading": "よかん",
+    "meaning": "Linh cảm, điềm báo",
+    "example": "不吉な予感がする (có linh cảm chẳng lành)",
+    "notes": "Cảm nhận trực giác mang tính cá nhân.",
+    "isCorrect": false
+  },
+  {
+    "id": 76,
+    "vocab": "予習",
+    "reading": "よしゅう",
+    "meaning": "Chuẩn bị bài mới trước khi đến lớp",
+    "example": "授業の予習をする (chuẩn bị bài trước)",
+    "notes": "Học sinh/sinh viên soạn bài trước giờ học.",
+    "isCorrect": false
+  },
+  {
+    "id": 77,
+    "vocab": "曇る",
+    "reading": "くもる",
+    "meaning": "Âm u; mờ sương (mắt kính)",
+    "example": "空が曇る (trời nhiều mây), 眼鏡が曇る (kính bị mờ hơi sương)",
+    "notes": "Bầu trời u ám hoặc mặt kính bị mờ sương.",
+    "isCorrect": false
+  },
+  {
+    "id": 78,
+    "vocab": "隠れる",
+    "reading": "かくれる",
+    "meaning": "Ẩn nấp, trốn tránh",
+    "example": "物陰に隠れる (núp vào chỗ khuất)",
+    "notes": "Trốn vào chỗ kín.",
+    "isCorrect": false
+  },
+  {
+    "id": 79,
+    "vocab": "濁る",
+    "reading": "にごる",
+    "meaning": "Đục ngầu, vẩn đục",
+    "example": "川の水が茶色く濁っている (nước sông đục ngầu sắc nâu)",
+    "notes": "[Đáp án đúng câu 185] Nước chất lỏng bị vẩn đục, trái nghĩa với 澄む.",
+    "isCorrect": true
+  },
+  {
+    "id": 80,
+    "vocab": "崩れる",
+    "reading": "くずれる",
+    "meaning": "Sụp đổ, đổ nát, vỡ vụn",
+    "example": "山が崩れる (sạt lở núi), 天気が崩れる (thời tiết xấu đi)",
+    "notes": "Công trình đổ nát hoặc thời tiết chuyển mưa.",
+    "isCorrect": false
+  },
+  {
+    "id": 81,
+    "vocab": "完了",
+    "reading": "かんりょう",
+    "meaning": "Hoàn tất, hoàn thành xong thủ tục",
+    "example": "手続きが完了する (thủ tục được hoàn tất xong xuôi)",
+    "notes": "[Đáp án đúng câu 186] Dùng khi một quy trình chính thức kết thúc.",
+    "isCorrect": true
+  },
+  {
+    "id": 82,
+    "vocab": "決定",
+    "reading": "けってい",
+    "meaning": "Quyết định phương án",
+    "example": "旅行の日程を決定する (quyết định lịch trình chuyến đi)",
+    "notes": "Đưa ra sự lựa chọn chính thức.",
+    "isCorrect": false
+  },
+  {
+    "id": 83,
+    "vocab": "実現",
+    "reading": "じつげん",
+    "meaning": "Hiện thực hóa (ước mơ, nguyện vọng)",
+    "example": "夢を実現させる (biến ước mơ thành hiện thực)",
+    "notes": "Đưa ước mơ/kế hoạch thành sự thật ngoài đời.",
+    "isCorrect": false
+  },
+  {
+    "id": 84,
+    "vocab": "達成",
+    "reading": "たっせい",
+    "meaning": "Đạt được (chỉ tiêu, mục tiêu)",
+    "example": "目標を達成する (đạt được mục tiêu đề ra)",
+    "notes": "Hoàn thành chỉ tiêu/con số dự tính.",
+    "isCorrect": false
+  },
+  {
+    "id": 85,
+    "vocab": "ストレス",
+    "reading": "ストレス",
+    "meaning": "Căng thẳng, áp lực tinh thần",
+    "example": "ストレスがたまる (áp lực dồn nén), ストレス解消 (giải tỏa căng thẳng)",
+    "notes": "Từ tiếng Anh 'stress'.",
+    "isCorrect": false
+  },
+  {
+    "id": 86,
+    "vocab": "バランス",
+    "reading": "バランス",
+    "meaning": "Cân bằng, thế cân đối",
+    "example": "栄養のバランスを考える (cân nhắc sự cân bằng dinh dưỡng)",
+    "notes": "[Đáp án đúng câu 187] Từ tiếng Anh 'balance'.",
+    "isCorrect": true
+  },
+  {
+    "id": 87,
+    "vocab": "チェンジ",
+    "reading": "チェンジ",
+    "meaning": "Thay đổi, đổi ngôi",
+    "example": "イメージチェンジ (đổi mới hình ảnh, thay đổi phong cách)",
+    "notes": "Từ tiếng Anh 'change'.",
+    "isCorrect": false
+  },
+  {
+    "id": 88,
+    "vocab": "ステップ",
+    "reading": "ステップ",
+    "meaning": "Bước đệm, giai đoạn",
+    "example": "次のステップに進む (tiến lên bước tiếp theo)",
+    "notes": "Từ tiếng Anh 'step'.",
+    "isCorrect": false
+  },
+  {
+    "id": 89,
+    "vocab": "ふんわり",
+    "reading": "ふんわり",
+    "meaning": "Mềm xốp, phồng nhẹ",
+    "example": "ふんわり焼けたオムレツ (món trứng cuộn nướng mềm xốp)",
+    "notes": "Bánh mì, chăn nệm êm ái xốp phồng.",
+    "isCorrect": false
+  },
+  {
+    "id": 90,
+    "vocab": "すっきり",
+    "reading": "すっきり",
+    "meaning": "Gọn gàng, thanh đạm",
+    "example": "すっきりした味 (vị thanh mát không bị ngấy)",
+    "notes": "Hương vị thanh nhẹ hoặc tâm trạng tỉnh táo.",
+    "isCorrect": false
+  },
+  {
+    "id": 91,
+    "vocab": "たっぷり",
+    "reading": "たっぷり",
+    "meaning": "Dồi dào, đầy đặn, nhiều",
+    "example": "料理の量がたっぷりある (lượng thức ăn rất đầy đặn, nhiều)",
+    "notes": "[Đáp án đúng câu 188] Khẩu phần dồi dào, nhiều.",
+    "isCorrect": true
+  },
+  {
+    "id": 92,
+    "vocab": "ぼんやり",
+    "reading": "ぼんやり",
+    "meaning": "Mơ màng, lờ mờ, thất thần",
+    "example": "景色がぼんやり見える (cảnh vật mờ ảo), ぼんやり過ごす (ngồi thẫn thờ)",
+    "notes": "Hình ảnh mờ hoặc trạng thái lơ đễnh.",
+    "isCorrect": false
+  },
+  {
+    "id": 93,
+    "vocab": "対比",
+    "reading": "たいひ",
+    "meaning": "Đối chiếu, so sánh hai vật",
+    "example": "二つの意見を対比させる (đặt đối chiếu hai luồng ý kiến)",
+    "notes": "Đặt song song để thấy sự tương phản.",
+    "isCorrect": false
+  },
+  {
+    "id": 94,
+    "vocab": "間隔",
+    "reading": "かんかく",
+    "meaning": "Khoảng cách cự ly/thời gian",
+    "example": "前の車と間隔をあける (giữ khoảng cách an toàn với xe trước)",
+    "notes": "Cự ly vật lý giữa 2 vật hoặc khoảng cách giờ.",
+    "isCorrect": false
+  },
+  {
+    "id": 95,
+    "vocab": "大別",
+    "reading": "たいべつ",
+    "meaning": "Phân chia đại thể thành nhóm lớn",
+    "example": "三つに大別される (được phân thành 3 nhóm lớn)",
+    "notes": "Phân loại tổng quát.",
+    "isCorrect": false
+  },
+  {
+    "id": 96,
+    "vocab": "相違",
+    "reading": "そうい",
+    "meaning": "Sự sai khác, bất đồng ý kiến",
+    "example": "二人の間に意見の相違がある (giữa hai người có sự bất đồng quan điểm)",
+    "notes": "[Đáp án đúng câu 189] Cụm từ trang trọng trong văn bản hội họp.",
+    "isCorrect": true
+  },
+  {
+    "id": 97,
+    "vocab": "破る",
+    "reading": "やぶる",
+    "meaning": "Xé rách; vi phạm lời hứa",
+    "example": "約束を破る (thất hứa, vi phạm hẹn)",
+    "notes": "Xé rách giấy hoặc phá vỡ quy ước.",
+    "isCorrect": false
+  },
+  {
+    "id": 98,
+    "vocab": "つぶす",
+    "reading": "つぶす (潰す)",
+    "meaning": "Nghiền nát; giết thời gian",
+    "example": "喫茶店に入って時間をつぶす (vào quán cà phê giết thời gian)",
+    "notes": "[Đáp án đúng câu 190] Thành ngữ cố định: `時間をつぶす`.",
+    "isCorrect": true
+  },
+  {
+    "id": 99,
+    "vocab": "壊す",
+    "reading": "こわす",
+    "meaning": "Làm hỏng đồ; hủy hoại sức khỏe",
+    "example": "時計を壊す (làm vỡ đồng hồ), 体を壊す (làm kiệt sức suy giảm sức khỏe)",
+    "notes": "Làm hư hại vật lý hoặc tổn hại cơ thể.",
+    "isCorrect": false
+  },
+  {
+    "id": 100,
+    "vocab": "削る",
+    "reading": "けずる",
+    "meaning": "Gọt đẽo; cắt giảm ngân sách",
+    "example": "予算を削る (cắt giảm ngân sách), 鉛筆を削る (gọt bút chì)",
+    "notes": "Bào gọt hoặc cắt bớt chi phí.",
+    "isCorrect": false
+  },
+  {
+    "id": 101,
+    "vocab": "率直に",
+    "reading": "そっちょくに",
+    "meaning": "Thẳng thắn, bộc trực",
+    "example": "率直に申し上げますと (nói một cách thẳng thắn thì)",
+    "notes": "Nói thật lòng không quanh co giấu giếm.",
+    "isCorrect": false
+  },
+  {
+    "id": 102,
+    "vocab": "安易に",
+    "reading": "あんいに",
+    "meaning": "Dễ dãi, nông nổi, hời hợt",
+    "example": "確認もしないで安易に信じる (chưa xác nhận đã tin một cách nông nổi)",
+    "notes": "[Đáp án đúng câu 191] Suy nghĩ hời hợt, cả tin dẫn tới sai lầm.",
+    "isCorrect": true
+  },
+  {
+    "id": 103,
+    "vocab": "柔軟に",
+    "reading": "じゅうなんに",
+    "meaning": "Linh hoạt, uyển chuyển",
+    "example": "状況に合わせて柔軟に対応する (ứng phó linh hoạt theo tình hình)",
+    "notes": "Thích nghi tốt, không bảo thủ.",
+    "isCorrect": false
+  },
+  {
+    "id": 104,
+    "vocab": "短気",
+    "reading": "たんき",
+    "meaning": "Nóng nảy, dễ cáu gắt",
+    "example": "短気な性格 (tính cách nóng như lửa)",
+    "notes": "Tính khí thiếu bình tĩnh kiên nhẫn.",
+    "isCorrect": false
+  },
+  {
+    "id": 105,
+    "vocab": "収穫",
+    "reading": "しゅうかく",
+    "meaning": "Thu hoạch nông sản; gặt hái thành quả",
+    "example": "農作物を収穫する (thu hoạch hoa màu nông sản)",
+    "notes": "[Đáp án đúng câu 192] Gặt lúa, hái trái cây hoặc gặt hái bài học.",
+    "isCorrect": true
+  },
+  {
+    "id": 106,
+    "vocab": "成立",
+    "reading": "せいりつ",
+    "meaning": "Thành lập, xác lập (hợp đồng)",
+    "example": "商談が成立する (thương vụ đàm phán thành công)",
+    "notes": "Hợp đồng được ký kết, nhà nước được lập nên.",
+    "isCorrect": false
+  },
+  {
+    "id": 107,
+    "vocab": "採集",
+    "reading": "さいしゅう",
+    "meaning": "Sưu tầm mẫu vật (côn trùng, mẫu vật)",
+    "example": "植物を採集する (thu thập mẫu thực vật)",
+    "notes": "Tìm kiếm và gom mẫu vật tự nhiên.",
+    "isCorrect": false
+  },
+  {
+    "id": 108,
+    "vocab": "取得",
+    "reading": "しゅとく",
+    "meaning": "Đoạt được, lấy được (bằng cấp, chứng chỉ)",
+    "example": "運転免許を取得する (lấy được bằng lái xe)",
+    "notes": "Thi cử để đạt chứng chỉ, quyền lợi.",
+    "isCorrect": false
+  },
+  {
+    "id": 109,
+    "vocab": "だぶだぶ",
+    "reading": "だぶだぶ",
+    "meaning": "Rộng thùng thình (quần áo)",
+    "example": "服がだぶだぶだ (quần áo mặc rộng thùng thình)",
+    "notes": "Quần áo quá khổ so với cơ thể.",
+    "isCorrect": false
+  },
+  {
+    "id": 110,
+    "vocab": "がらがら",
+    "reading": "がらがら",
+    "meaning": "Vắng tanh; giọng khàn khàn",
+    "example": "終電の車内ががらがらだ (tàu chuyến cuối vắng tanh không bóng người)",
+    "notes": "Quán xá không có người hoặc giọng khàn đặc.",
+    "isCorrect": false
+  },
+  {
+    "id": 111,
+    "vocab": "ぐっすり",
+    "reading": "ぐっすり",
+    "meaning": "Ngủ say tít, ngủ li bì",
+    "example": "ぐっすり眠る (ngủ một giấc thật sâu say tít)",
+    "notes": "Giấc ngủ sâu không mộng mị.",
+    "isCorrect": false
+  },
+  {
+    "id": 112,
+    "vocab": "のんびり",
+    "reading": "のんびり",
+    "meaning": "Thong thả, thảnh thơi, ung dung",
+    "example": "週末は家でのんびり過ごす (cuối tuần ở nhà nghỉ ngơi thảnh thơi)",
+    "notes": "[Đáp án đúng câu 193] Thư thả hưởng thụ thời gian rảnh.",
+    "isCorrect": true
+  },
+  {
+    "id": 113,
+    "vocab": "普及",
+    "reading": "ふきゅう",
+    "meaning": "Phổ cập, lan tỏa rộng rãi",
+    "example": "一般の人々に広く普及する (phổ cập rộng rãi tới đông đảo đại chúng)",
+    "notes": "[Đáp án đúng câu 194] Dịch vụ/công nghệ được xã hội dùng phổ biến.",
+    "isCorrect": true
+  },
+  {
+    "id": 114,
+    "vocab": "充満",
+    "reading": "じゅうまん",
+    "meaning": "Tràn ngập, lan tỏa (mùi, khói, khí)",
+    "example": "ガスが部屋に充満する (khí gas tràn ngập kín căn phòng)",
+    "notes": "Khí ga, mùi khói lấp đầy không gian kín.",
+    "isCorrect": false
+  },
+  {
+    "id": 115,
+    "vocab": "伝染",
+    "reading": "でんせん",
+    "meaning": "Lây lan dịch bệnh, truyền nhiễm",
+    "example": "伝染病が広がる (bệnh truyền nhiễm bùng phát)",
+    "notes": "Bệnh tật lây lan từ người sang người.",
+    "isCorrect": false
+  },
+  {
+    "id": 116,
+    "vocab": "進行",
+    "reading": "しんこう",
+    "meaning": "Tiến triển, tiến hành (cuộc họp, bệnh)",
+    "example": "予定通りに進行する (tiến triển đúng theo lịch trình)",
+    "notes": "Cuộc họp diễn ra hoặc bệnh tật tiến triển.",
+    "isCorrect": false
+  },
+  {
+    "id": 117,
+    "vocab": "取り付ける",
+    "reading": "とりつける",
+    "meaning": "Lắp đặt; đạt được cam kết",
+    "example": "エアコンを取り付ける (lắp máy điều hòa)",
+    "notes": "Gắn thiết bị lên tường hoặc chốt cam kết.",
+    "isCorrect": false
+  },
+  {
+    "id": 118,
+    "vocab": "引き止める",
+    "reading": "ひきとめる",
+    "meaning": "Níu lại, giữ ai đó lại không cho đi",
+    "example": "帰ろうとした友人を引き止める (níu giữ người bạn định về ở lại nói tiếp)",
+    "notes": "[Đáp án đúng câu 195] Giữ chân ai đó khi họ định rời đi.",
+    "isCorrect": true
+  },
+  {
+    "id": 119,
+    "vocab": "持ち寄る",
+    "reading": "もちよる",
+    "meaning": "Mỗi người đem đến một ít góp chung",
+    "example": "みんなで手料理を持ち寄る (mỗi người đem một món ăn tự nấu đến tiệc)",
+    "notes": "Hình thức potluck, góp công góp món.",
+    "isCorrect": false
+  },
+  {
+    "id": 120,
+    "vocab": "受け入れる",
+    "reading": "うけいれる",
+    "meaning": "Chấp nhận, đón nhận, dung nạp",
+    "example": "留学生を温かく受け入れる (nồng nhiệt đón nhận lưu học sinh)",
+    "notes": "Đồng thuận lời đề nghị hoặc tiếp nhận con người.",
+    "isCorrect": false
+  },
+  {
+    "id": 121,
+    "vocab": "ライバル",
+    "reading": "ライバル",
+    "meaning": "Đối thủ cạnh tranh",
+    "example": "商売のライバル (đối thủ cạnh tranh trên thương trường)",
+    "notes": "Từ tiếng Anh 'rival'.",
+    "isCorrect": false
+  },
+  {
+    "id": 122,
+    "vocab": "ゲスト",
+    "reading": "ゲスト",
+    "meaning": "Khách mời",
+    "example": "ラジオ番組のゲスト (khách mời của chương trình radio)",
+    "notes": "Từ tiếng Anh 'guest'.",
+    "isCorrect": false
+  },
+  {
+    "id": 123,
+    "vocab": "リーダー",
+    "reading": "リーダー",
+    "meaning": "Trưởng nhóm, thủ lĩnh dẫn dắt",
+    "example": "チームのリーダーとして導く (dẫn dắt với tư cách là trưởng nhóm)",
+    "notes": "[Đáp án đúng câu 196] Từ tiếng Anh 'leader'.",
+    "isCorrect": true
+  },
+  {
+    "id": 124,
+    "vocab": "ファン",
+    "reading": "ファン",
+    "meaning": "Người hâm mộ, cổ động viên",
+    "example": "熱心なサッカーファン (cổ động viên bóng đá nhiệt huyết)",
+    "notes": "Từ tiếng Anh 'fan'.",
+    "isCorrect": false
+  },
+  {
+    "id": 125,
+    "vocab": "親しい",
+    "reading": "したしい",
+    "meaning": "Thân thiết, gần gũi",
+    "example": "親しい間柄 (mối quan hệ bạn bè thân thiết)",
+    "notes": "Quan hệ bạn bè thân cận.",
+    "isCorrect": false
+  },
+  {
+    "id": 126,
+    "vocab": "懐かしい",
+    "reading": "なつかしい",
+    "meaning": "Hoài niệm, bồi hồi nhớ xưa",
+    "example": "懐かしい思い出 (kỷ niệm xưa thân thương đáng nhớ)",
+    "notes": "Cảm xúc bồi hồi khi nhớ lại chuyện quá khứ.",
+    "isCorrect": false
+  },
+  {
+    "id": 127,
+    "vocab": "詳しい",
+    "reading": "くわしい",
+    "meaning": "Tường tận, am hiểu chi tiết",
+    "example": "パソコンの知識に詳しい (rất am hiểu kiến thức máy tính)",
+    "notes": "Có hiểu biết sâu sắc về một lĩnh vực.",
+    "isCorrect": false
+  },
+  {
+    "id": 128,
+    "vocab": "頼もしい",
+    "reading": "たのもしい",
+    "meaning": "Đáng tin cậy, vững chãi, an tâm",
+    "example": "助けてくれてとても頼もしかった (giúp đỡ mọi người nên cảm thấy rất đáng tin cậy)",
+    "notes": "[Đáp án đúng câu 197] Người đem lại cảm giác yên tâm có chỗ dựa vững chắc.",
+    "isCorrect": true
+  },
+  {
+    "id": 129,
+    "vocab": "選出",
+    "reading": "せんしゅつ",
+    "meaning": "Bầu cử chọn ra người đại diện",
+    "example": "議長を選出する (bầu chọn ra chủ tọa cuộc họp)",
+    "notes": "Bầu chọn qua phiếu bầu.",
+    "isCorrect": false
+  },
+  {
+    "id": 130,
+    "vocab": "提供",
+    "reading": "ていきょう",
+    "meaning": "Cung cấp, mang lại (cơ hội, nơi chốn)",
+    "example": "社会に学習の場を提供する (cung cấp môi trường học tập cho xã hội)",
+    "notes": "[Đáp án đúng câu 198] Cụm từ thi N2 kinh điển: `～の場を提供する`.",
+    "isCorrect": true
+  },
+  {
+    "id": 131,
+    "vocab": "指示",
+    "reading": "しじ",
+    "meaning": "Chỉ thị, ra lệnh thi hành",
+    "example": "的確な指示を出す (đưa ra chỉ thị rõ ràng chính xác)",
+    "notes": "Cấp trên ra lệnh cho cấp dưới.",
+    "isCorrect": false
+  },
+  {
+    "id": 132,
+    "vocab": "寄付",
+    "reading": "きふ",
+    "meaning": "Quyên góp tiền của, ủng hộ từ thiện",
+    "example": "被災地に義援金を寄付する (quyên góp tiền ủng hộ vùng thiên tai)",
+    "notes": "Ủng hộ từ thiện tiền của.",
+    "isCorrect": false
+  },
+  {
+    "id": 133,
+    "vocab": "ぐったり",
+    "reading": "ぐったり",
+    "meaning": "Mệt lả, rũ rượi, kiệt sức",
+    "example": "疲れてぐったりしてしまう (mệt nhoài rũ rượi không còn chút sức)",
+    "notes": "[Đáp án đúng câu 199] Trạng thái kiệt sức nằm bẹp.",
+    "isCorrect": true
+  },
+  {
+    "id": 134,
+    "vocab": "しっかり",
+    "reading": "しっかり",
+    "meaning": "Vững vàng, chắc chắn, kiên cường",
+    "example": "しっかりした土台 (nền móng vững chắc), しっかり勉強する (học hành đàng hoàng)",
+    "notes": "Làm chắc chắn, đứng vững vàng.",
+    "isCorrect": false
+  },
+  {
+    "id": 135,
+    "vocab": "すっきり",
+    "reading": "すっきり",
+    "meaning": "Sảng khoái, nhẹ nhõm đầu óc",
+    "example": "頭がすっきりする (đầu óc tỉnh táo nhẹ nhõm)",
+    "notes": "Tâm trạng khoan khoái sau khi giải tỏa.",
+    "isCorrect": false
+  },
+  {
+    "id": 136,
+    "vocab": "ぎっしり",
+    "reading": "ぎっしり",
+    "meaning": "Chật ních, lèn chặt kín",
+    "example": "かばんに荷物をぎっしり詰める (nhét đồ chật cứng vào cặp)",
+    "notes": "Đầy ắp không còn khe hở.",
+    "isCorrect": false
+  },
+  {
+    "id": 137,
+    "vocab": "アウト",
+    "reading": "アウト",
+    "meaning": "Bị loại, trượt, hỏng chuyện",
+    "example": "時間に遅れたらアウトだ (nếu đến muộn là coi như bị loại)",
+    "notes": "Từ tiếng Anh 'out'.",
+    "isCorrect": false
+  },
+  {
+    "id": 138,
+    "vocab": "ダウン",
+    "reading": "ダウン",
+    "meaning": "Gục ngã, kiệt sức, tụt dốc",
+    "example": "体調を崩してダウンする (suy giảm thể lực gục ngã)",
+    "notes": "Từ tiếng Anh 'down'.",
+    "isCorrect": false
+  },
+  {
+    "id": 139,
+    "vocab": "ショック",
+    "reading": "ショック",
+    "meaning": "Cú sốc tâm lý, bàng hoàng hụt hẫng",
+    "example": "名前を忘れられてとてもショックだった (bị quên tên cảm thấy rất sốc)",
+    "notes": "[Đáp án đúng câu 200] Từ tiếng Anh 'shock'. Cảm giác hụt hẫng bất ngờ.",
+    "isCorrect": true
+  },
+  {
+    "id": 140,
+    "vocab": "エラー",
+    "reading": "エラー",
+    "meaning": "Lỗi kỹ thuật, sai số",
+    "example": "システムにエラーが発生する (phát sinh lỗi hệ thống phần mềm)",
+    "notes": "Từ tiếng Anh 'error'.",
+    "isCorrect": false
+  },
+  {
+    "id": 141,
+    "vocab": "面倒",
+    "reading": "めんどう",
+    "meaning": "Phiền hà, rắc rối",
+    "example": "面倒な手続きを省く (lược bớt những thủ tục phiền toái)",
+    "notes": "Phức tạp gây khó chịu.",
+    "isCorrect": false
+  },
+  {
+    "id": 142,
+    "vocab": "邪魔",
+    "reading": "じゃま",
+    "meaning": "Cản trở, ngáng đường, vướng víu",
+    "example": "通る人の邪魔になる (gây vướng víu, cản trở lối đi của người khác)",
+    "notes": "[Đáp án đúng câu 201] Cụm: `～の邪魔になる`.",
+    "isCorrect": true
+  },
+  {
+    "id": 143,
+    "vocab": "被害",
+    "reading": "ひがい",
+    "meaning": "Thiệt hại do tai ương",
+    "example": "台風の被害を最小限に抑える (hạn chế tối đa thiệt hại do bão)",
+    "notes": "Tổn thất về vật chất hoặc sức khỏe do tai nạn.",
+    "isCorrect": false
+  },
+  {
+    "id": 144,
+    "vocab": "無理",
+    "reading": "むり",
+    "meaning": "Vô lý, quá sức",
+    "example": "無理をしないで休んでください (đừng gắng gượng quá sức, hãy nghỉ ngơi)",
+    "notes": "Làm điều vượt quá năng lực cơ thể.",
+    "isCorrect": false
+  },
+  {
+    "id": 145,
+    "vocab": "おとなしい",
+    "reading": "おとなしい",
+    "meaning": "Ngoan ngoãn, ít nói, trầm tính",
+    "example": "おとなしい性格 (tính cách hiền lành trầm tính)",
+    "notes": "Tính cách trẻ con hoặc người lớn hiền lành.",
+    "isCorrect": false
+  },
+  {
+    "id": 146,
+    "vocab": "ささやか",
+    "reading": "ささやか",
+    "meaning": "Nhỏ bé, giản dị khiêm tốn",
+    "example": "ささやかなプレゼント (món quà nhỏ đơn sơ mộc mạc)",
+    "notes": "Thể hiện sự khiêm nhường khi tặng quà/làm tiệc.",
+    "isCorrect": false
+  },
+  {
+    "id": 147,
+    "vocab": "なだらか",
+    "reading": "なだらか",
+    "meaning": "Thoai thoải, lài dốc",
+    "example": "上り坂がなだらかだった (con dốc thoai thoải nhẹ nhàng)",
+    "notes": "[Đáp án đúng câu 202] Độ dốc thoai thoải dễ leo.",
+    "isCorrect": true
+  },
+  {
+    "id": 148,
+    "vocab": "よわよわしい",
+    "reading": "よわよわしい (弱々しい)",
+    "meaning": "Yếu ớt, mỏng manh",
+    "example": "弱々しい声で返事する (trả lời bằng giọng yếu ớt thều thào)",
+    "notes": "Thể trạng hoặc âm thanh mỏng manh.",
+    "isCorrect": false
+  },
+  {
+    "id": 149,
+    "vocab": "活発に",
+    "reading": "かっぱつに",
+    "meaning": "Sôi nổi, hoạt bát, tích cực",
+    "example": "意見を活発に交換し合った (trao đổi ý kiến với nhau một cách rất sôi nổi)",
+    "notes": "[Đáp án đúng câu 203] Cụm N2: `活発な議論 / 活発に意見を交換する`.",
+    "isCorrect": true
+  },
+  {
+    "id": 150,
+    "vocab": "円満に",
+    "reading": "えんまんに",
+    "meaning": "Êm đẹp, viên mãn, hòa thuận",
+    "example": "円満に話し合いが終わる (cuộc thương lượng kết thúc êm thấm)",
+    "notes": "Hòa giải thành công không tranh cãi.",
+    "isCorrect": false
+  },
+  {
+    "id": 151,
+    "vocab": "機敏に",
+    "reading": "きびんに",
+    "meaning": "Nhanh nhẹn, lanh lẹ thao tác",
+    "example": "機敏に体を動かす (vận động cơ thể lanh lẹ thoăn thoắt)",
+    "notes": "Phản xạ cử động linh hoạt của cơ thể.",
+    "isCorrect": false
+  },
+  {
+    "id": 152,
+    "vocab": "濃厚に",
+    "reading": "のうこうに",
+    "meaning": "Đậm đặc; nồng độ cao; khả năng cao",
+    "example": "濃厚なチーズの味 (vị phô mai béo ngậy đậm đà)",
+    "notes": "Vị béo đậm hoặc xác suất xảy ra rất lớn.",
+    "isCorrect": false
+  },
+  {
+    "id": 153,
+    "vocab": "当てはまる",
+    "reading": "あてはまる",
+    "meaning": "Khớp với, thỏa mãn điều kiện",
+    "example": "応募条件にぴったり当てはまる (hoàn toàn thỏa mãn điều kiện ứng tuyển)",
+    "notes": "Khớp vào quy chuẩn/tiêu chí.",
+    "isCorrect": false
+  },
+  {
+    "id": 154,
+    "vocab": "付け加える",
+    "reading": "つけくわえる",
+    "meaning": "Bổ sung thêm, nói thêm vào",
+    "example": "説明に一言付け加える (bổ sung thêm một lời giải thích)",
+    "notes": "Thêm chi tiết vào lời nói hoặc bài viết.",
+    "isCorrect": false
+  },
+  {
+    "id": 155,
+    "vocab": "行き着く",
+    "reading": "いきつく",
+    "meaning": "Đi tới đích; kết cục đi đến",
+    "example": "考え抜いて一つの結論に行き着く (ngẫm nghĩ kỹ càng rồi đi đến kết luận)",
+    "notes": "Đi đến nơi chốn hoặc đạt tới kết luận sau cùng.",
+    "isCorrect": false
+  },
+  {
+    "id": 156,
+    "vocab": "割り込む",
+    "reading": "わりこむ",
+    "meaning": "Chen hàng, chen ngang",
+    "example": "私の前に強引に割り込んでくる (cố tình chen hàng ngang trước mặt tôi)",
+    "notes": "[Đáp án đúng câu 204] Chen ngang vào hàng ngũ đang xếp.",
+    "isCorrect": true
+  },
+  {
+    "id": 157,
+    "vocab": "表現",
+    "reading": "ひょうげん",
+    "meaning": "Biểu đạt, diễn tả (cảm xúc)",
+    "example": "感謝の気持ちを言葉で表現する (diễn tả lòng biết ơn bằng lời)",
+    "notes": "Bộc lộ tình cảm qua ngôn từ/nghệ thuật.",
+    "isCorrect": false
+  },
+  {
+    "id": 158,
+    "vocab": "明示",
+    "reading": "めいじ",
+    "meaning": "Chỉ rõ ràng, thể hiện tường minh",
+    "example": "契約条件を書面で明示する (ghi rõ tường minh các điều khoản hợp đồng)",
+    "notes": "Chỉ rõ rành mạch trên văn bản.",
+    "isCorrect": false
+  },
+  {
+    "id": 159,
+    "vocab": "公開",
+    "reading": "こうかい",
+    "meaning": "Công khai cho công chúng xem",
+    "example": "新しい映画を劇場で公開する (công chiếu bộ phim mới tại rạp)",
+    "notes": "Mở rộng cho đại chúng biết hoặc thưởng thức.",
+    "isCorrect": false
+  },
+  {
+    "id": 160,
+    "vocab": "発揮",
+    "reading": "はっき",
+    "meaning": "Phát huy (thực lực, tài năng)",
+    "example": "試合で実力を発揮できなかった (không thể phát huy được thực lực trong trận đấu)",
+    "notes": "[Đáp án đúng câu 205] Cụm vàng N2: `実力を発揮する`.",
+    "isCorrect": true
+  },
+  {
+    "id": 161,
+    "vocab": "コメント",
+    "reading": "コメント",
+    "meaning": "Lời bình luận, nhận xét",
+    "example": "試合後に監督がコメントを出す (huấn luyện viên đưa ra bình luận sau trận)",
+    "notes": "Từ tiếng Anh 'comment'.",
+    "isCorrect": false
+  },
+  {
+    "id": 162,
+    "vocab": "デザイン",
+    "reading": "デザイン",
+    "meaning": "Thiết kế mẫu mã",
+    "example": "ウェブサイトを美しくデザインする (thiết kế trang web đẹp mắt)",
+    "notes": "Từ tiếng Anh 'design'.",
+    "isCorrect": false
+  },
+  {
+    "id": 163,
+    "vocab": "アレンジ",
+    "reading": "アレンジ",
+    "meaning": "Biến tấu, điều chỉnh lại cho phù hợp",
+    "example": "好みに合うように味付けをアレンジする (biến tấu cách nêm gia vị cho hợp khẩu vị)",
+    "notes": "[Đáp án đúng câu 206] Từ tiếng Anh 'arrange' trong nấu ăn/âm nhạc.",
+    "isCorrect": true
+  },
+  {
+    "id": 164,
+    "vocab": "ケア",
+    "reading": "ケア",
+    "meaning": "Chăm sóc, giữ gìn",
+    "example": "髪の毛のケアを怠らない (không lơ là việc chăm sóc tóc)",
+    "notes": "Từ tiếng Anh 'care'.",
+    "isCorrect": false
+  },
+  {
+    "id": 165,
+    "vocab": "専属",
+    "reading": "せんぞく",
+    "meaning": "Độc quyền, biên chế riêng",
+    "example": "ファッション雑誌の専属モデル (người mẫu độc quyền của tạp chí thời trang)",
+    "notes": "Thuộc về riêng một cơ quan, tổ chức.",
+    "isCorrect": false
+  },
+  {
+    "id": 166,
+    "vocab": "独特",
+    "reading": "どくとく",
+    "meaning": "Độc đáo, nét đặc trưng riêng biệt",
+    "example": "ほかの人の絵にはない独特の雰囲気 (bầu không khí độc đáo riêng biệt)",
+    "notes": "[Đáp án đúng câu 207] Cụm cố định: `独特の雰囲気 / 独特の匂い`.",
+    "isCorrect": true
+  },
+  {
+    "id": 167,
+    "vocab": "限定",
+    "reading": "げんてい",
+    "meaning": "Giới hạn, hạn chế số lượng/thời gian",
+    "example": "本日限りの限定販売 (bán hàng giới hạn duy nhất trong ngày hôm nay)",
+    "notes": "Đặt ra phạm vi giới hạn chặt chẽ.",
+    "isCorrect": false
+  },
+  {
+    "id": 168,
+    "vocab": "孤立",
+    "reading": "こりつ",
+    "meaning": "Cô lập, bơ vơ lẻ loi",
+    "example": "周囲から孤立してしまう (bị mọi người xung quanh cô lập)",
+    "notes": "Bị tách biệt khỏi tập thể.",
+    "isCorrect": false
+  },
+  {
+    "id": 169,
+    "vocab": "空ける",
+    "reading": "あける",
+    "meaning": "Để trống (lịch trình, chỗ ngồi)",
+    "example": "週末の予定を空けておく (dành sẵn lịch trống vào cuối tuần)",
+    "notes": "Dành sẵn khoảng thời gian hoặc chỗ ngồi trống.",
+    "isCorrect": false
+  },
+  {
+    "id": 170,
+    "vocab": "離す",
+    "reading": "はなす",
+    "meaning": "Buông tay, tách rời khoảng cách",
+    "example": "子どもの手を離さない (không buông tay con trẻ)",
+    "notes": "Tách xa khoảng cách vật lý.",
+    "isCorrect": false
+  },
+  {
+    "id": 171,
+    "vocab": "奪う",
+    "reading": "うばう",
+    "meaning": "Cướp đoạt, tước đoạt",
+    "example": "人から自由を奪う (tước đoạt quyền tự do của con người)",
+    "notes": "Dùng sức mạnh chiếm đoạt.",
+    "isCorrect": false
+  },
+  {
+    "id": 172,
+    "vocab": "欠かす",
+    "reading": "かかす",
+    "meaning": "Bỏ sót, làm ngắt quãng thói quen",
+    "example": "毎朝の運動を欠かさない (không bao giờ bỏ buổi tập thể dục buổi sáng nào)",
+    "notes": "[Đáp án đúng câu 208] Mẫu câu thói quen: `～を欠かさない`.",
+    "isCorrect": true
+  },
+  {
+    "id": 173,
+    "vocab": "でたらめに",
+    "reading": "でたらめに",
+    "meaning": "Bừa bãi, linh tinh, hú họa, đánh lụi",
+    "example": "答えが分からなくてでたらめに答える (không biết đáp án nên đánh lụi bừa bãi)",
+    "notes": "[Đáp án đúng câu 209] Nói/trả lời vu vơ không có căn cứ.",
+    "isCorrect": true
+  },
+  {
+    "id": 174,
+    "vocab": "わがままに",
+    "reading": "わがままに",
+    "meaning": "Ngang bướng, ích kỷ tùy tiện",
+    "example": "わがままに振る舞う (hành xử bướng bỉnh theo ý mình)",
+    "notes": "Chỉ nghĩ tới bản thân, không nhường nhịn.",
+    "isCorrect": false
+  },
+  {
+    "id": 175,
+    "vocab": "ぎざぎざに",
+    "reading": "ぎざぎざに",
+    "meaning": "Hình răng cưa lởm chởm",
+    "example": "布の端をぎざぎざに切る (cắt mép vải thành hình răng cưa)",
+    "notes": "Vết cắt có nhiều khía nhọn.",
+    "isCorrect": false
+  },
+  {
+    "id": 176,
+    "vocab": "ごちゃごちゃに",
+    "reading": "ごちゃごちゃに",
+    "meaning": "Lộn xộn, bừa bộn; cằn nhằn",
+    "example": "机の上をごちゃごちゃにする (bày bừa lộn xộn trên mặt bàn)",
+    "notes": "Bừa bãi không ngăn nắp.",
+    "isCorrect": false
+  },
+  {
+    "id": 177,
+    "vocab": "減る",
+    "reading": "へる",
+    "meaning": "Hao hụt, giảm sút số lượng",
+    "example": "体重が2キロ減った (giảm được 2 cân)",
+    "notes": "Số lượng cơ bản bị hao hụt.",
+    "isCorrect": false
+  },
+  {
+    "id": 178,
+    "vocab": "達する",
+    "reading": "たっする",
+    "meaning": "Đạt tới, chạm mốc (số liệu)",
+    "example": "最低気温はマイナス20度に達した (nhiệt độ thấp nhất chạm mốc âm 20 độ C)",
+    "notes": "[Đáp án đúng câu 210] Chạm tới một con số hay mốc cụ thể.",
+    "isCorrect": true
+  },
+  {
+    "id": 179,
+    "vocab": "通じる",
+    "reading": "つうじる",
+    "meaning": "Thông suốt; hiểu thấu lòng nhau",
+    "example": "お互いの気持ちが通じる (thấu hiểu tâm ý của nhau)",
+    "notes": "Tâm đầu ý hợp hoặc đường sá thông suốt.",
+    "isCorrect": false
+  },
+  {
+    "id": 180,
+    "vocab": "沈む",
+    "reading": "しずむ",
+    "meaning": "Chìm nghỉm; lặn (mặt trời)",
+    "example": "船が海底に沈む (con tàu chìm xuống đáy biển)",
+    "notes": "Vật thể rơi xuống nước hoặc mặt trời lặn.",
+    "isCorrect": false
+  },
+  {
+    "id": 181,
+    "vocab": "着々と",
+    "reading": "ちゃくちゃくと",
+    "meaning": "Đều đặn, vững chắc từng bước",
+    "example": "結婚式に向けて準備が着々と進んでいる (chuẩn bị cho đám cưới đang tiến triển đều đặn)",
+    "notes": "[Đáp án đúng câu 211] Cụm: `準備が着々と進む`.",
+    "isCorrect": true
+  },
+  {
+    "id": 182,
+    "vocab": "慎重に",
+    "reading": "しんちょうに",
+    "meaning": "Thận trọng, cẩn trọng dè dặt",
+    "example": "新しい計画を慎重に進める (triển khai kế hoạch mới một cách thận trọng)",
+    "notes": "Làm việc cẩn thận để tránh rủi ro sai sót.",
+    "isCorrect": false
+  },
+  {
+    "id": 183,
+    "vocab": "いちいち",
+    "reading": "いちいち",
+    "meaning": "Từng li từng tí, xoi mói phiền toái",
+    "example": "人のやることにいちいち口を出す (việc gì người khác làm cũng săm soi chõ miệng)",
+    "notes": "Mang hàm ý phiền hà, chuyện nhỏ cũng để ý.",
+    "isCorrect": false
+  },
+  {
+    "id": 184,
+    "vocab": "ぐんぐん",
+    "reading": "ぐんぐん",
+    "meaning": "Vùn vụt, tăng nhanh thoăn thoắt",
+    "example": "子どもの背がぐんぐん伸びる (chiều cao đứa trẻ lớn nhanh vùn vụt)",
+    "notes": "Tốc độ phát triển vượt bậc.",
+    "isCorrect": false
+  },
+  {
+    "id": 185,
+    "vocab": "スペース",
+    "reading": "スペース",
+    "meaning": "Không gian, chỗ trống (space)",
+    "example": "車をとめるスペースがない (không có khoảng trống/chỗ để đỗ xe ô tô)",
+    "notes": "[Đáp án đúng câu 212] Từ tiếng Anh 'space'.",
+    "isCorrect": true
+  },
+  {
+    "id": 186,
+    "vocab": "フロア",
+    "reading": "フロア",
+    "meaning": "Sàn nhà, tầng nhà (floor)",
+    "example": "デパートの婦人服フロア (tầng bán đồ thời trang nữ ở bách hóa)",
+    "notes": "Từ tiếng Anh 'floor'.",
+    "isCorrect": false
+  },
+  {
+    "id": 187,
+    "vocab": "ステージ",
+    "reading": "ステージ",
+    "meaning": "Sân khấu, giai đoạn (stage)",
+    "example": "ステージの上で歌う (hát trên sân khấu biểu diễn)",
+    "notes": "Từ tiếng Anh 'stage'.",
+    "isCorrect": false
+  },
+  {
+    "id": 188,
+    "vocab": "フロント",
+    "reading": "フロント",
+    "meaning": "Quầy lễ tân khách sạn (front desk)",
+    "example": "ホテルのフロントでチェックインする (làm thủ tục nhận phòng ở quầy lễ tân)",
+    "notes": "Từ tiếng Anh 'front'.",
+    "isCorrect": false
+  },
+  {
+    "id": 189,
+    "vocab": "参観",
+    "reading": "さんかん",
+    "meaning": "Thăm quan, dự giờ học",
+    "example": "授業参観に行く (đi dự giờ tiết học của con)",
+    "notes": "Phụ huynh tới lớp học quan sát con.",
+    "isCorrect": false
+  },
+  {
+    "id": 190,
+    "vocab": "検診",
+    "reading": "けんしん",
+    "meaning": "Khám bệnh, kiểm tra sức khỏe y tế",
+    "example": "年に一度の定期健康検診 (khám sức khỏe định kỳ mỗi năm một lần)",
+    "notes": "Bác sĩ kiểm tra cơ thể người.",
+    "isCorrect": false
+  },
+  {
+    "id": 191,
+    "vocab": "観測",
+    "reading": "かんそく",
+    "meaning": "Quan trắc thiên văn, khí tượng",
+    "example": "天体／気象観測を行う (tiến hành quan sát thiên văn/khí tượng)",
+    "notes": "Đo lường các chỉ số của giới tự nhiên.",
+    "isCorrect": false
+  },
+  {
+    "id": 192,
+    "vocab": "点検",
+    "reading": "てんけん",
+    "meaning": "Kiểm tra kỹ thuật, bảo dưỡng máy móc",
+    "example": "エレベーターを定期的に点検する (định kỳ kiểm tra bảo dưỡng thang máy)",
+    "notes": "[Đáp án đúng câu 213] Kiểm tra từng bộ phận máy móc xem có hỏng hóc.",
+    "isCorrect": true
+  },
+  {
+    "id": 193,
+    "vocab": "さっぱり",
+    "reading": "さっぱり",
+    "meaning": "Sảng khoái; thanh đạm; hoàn toàn không",
+    "example": "さっぱりした性格 (tính cách thẳng thắn sảng khoái)",
+    "notes": "Tâm trạng thoải mái hoặc tính tình ngay thẳng.",
+    "isCorrect": false
+  },
+  {
+    "id": 194,
+    "vocab": "にっこり",
+    "reading": "にっこり",
+    "meaning": "Mỉm cười tươi tắn, rạng rỡ",
+    "example": "カメラを向けると子どもたちがにっこり笑った (chĩa máy ảnh là lũ trẻ cười tươi rói)",
+    "notes": "[Đáp án đúng câu 214] Cụm: `にっこり笑う / 微笑む`.",
+    "isCorrect": true
+  },
+  {
+    "id": 195,
+    "vocab": "ぴかぴか",
+    "reading": "ぴかぴか",
+    "meaning": "Sáng bóng, lấp lánh",
+    "example": "靴をぴかぴかに磨く (đánh giày sáng bóng loáng)",
+    "notes": "Bề mặt đồ vật được lau chùi sạch sẽ.",
+    "isCorrect": false
+  },
+  {
+    "id": 196,
+    "vocab": "ほかほか",
+    "reading": "ほかほか",
+    "meaning": "Nóng hổi, bốc hơi ấm áp (đồ ăn)",
+    "example": "ほかほかの肉まんを食べる (ăn chiếc bánh bao nhân thịt nóng hổi)",
+    "notes": "Đồ ăn vừa mới ra lò bốc hơi ấm áp.",
+    "isCorrect": false
+  },
+  {
+    "id": 197,
+    "vocab": "続行",
+    "reading": "ぞっこう",
+    "meaning": "Tiếp tục thực hiện dù gặp khó khăn",
+    "example": "雨が降っても試合を続行する (dù mưa rơi vẫn tiếp tục trận đấu)",
+    "notes": "Không bỏ dở giữa chừng dù có cản trở.",
+    "isCorrect": false
+  },
+  {
+    "id": 198,
+    "vocab": "続出",
+    "reading": "ぞくしゅつ",
+    "meaning": "Xuất hiện liên tiếp dồn dập (sự việc xấu)",
+    "example": "船酔いで気分が悪くなる人が続出する (người say sóng liên tục xuất hiện hết người này tới người khác)",
+    "notes": "[Đáp án đúng câu 215] Cụm: `～が続出する`.",
+    "isCorrect": true
+  },
+  {
+    "id": 199,
+    "vocab": "特続",
+    "reading": "とくぞく",
+    "meaning": "Từ ghép sai (không tồn tại trong từ điển)",
+    "example": "Không có trong tiếng Nhật chuẩn",
+    "notes": "Từ ghép gài bẫy người học để gây nhầm lẫn chữ Hán.",
+    "isCorrect": false
+  },
+  {
+    "id": 200,
+    "vocab": "継続",
+    "reading": "けいぞく",
+    "meaning": "Kế tục, duy trì việc gì liên tục",
+    "example": "実験／研究を継続する (tiếp tục duy trì công tác thí nghiệm/nghiên cứu)",
+    "notes": "Duy trì hành vi công việc liên tục trong thời gian dài.",
+    "isCorrect": false
+  },
+  {
+    "id": 201,
+    "vocab": "飛び立つ",
+    "reading": "とびたつ",
+    "meaning": "Cất cánh bay lên (chim, máy bay)",
+    "example": "飛行機が滑走路から飛び立つ (máy bay cất cánh từ đường băng)",
+    "notes": "Rời mặt đất bay vút lên bầu trời.",
+    "isCorrect": false
+  },
+  {
+    "id": 202,
+    "vocab": "飛び上がる",
+    "reading": "とびあがる",
+    "meaning": "Nhảy cẫng dựng lên vì giật mình/vui",
+    "example": "嬉しさのあまり飛び上がる (nhảy cẫng lên vì quá đỗi vui mừng)",
+    "notes": "Bật người lên khỏi mặt đất trong khoảnh khắc.",
+    "isCorrect": false
+  },
+  {
+    "id": 203,
+    "vocab": "飛び散る",
+    "reading": "とびちる",
+    "meaning": "Bay vung vãi, văng tung tóe khắp nơi",
+    "example": "くしゃみをしたら小麦粉が飛び散ってしまった (hắt xì một cái là bột mì bay tung tóe khắp nơi)",
+    "notes": "[Đáp án đúng câu 216] Bột, giọt nước, mảnh vỡ bắn tứ tung.",
+    "isCorrect": true
+  },
+  {
+    "id": 204,
+    "vocab": "飛び降りる",
+    "reading": "とびおりる",
+    "meaning": "Nhảy từ trên cao xuống",
+    "example": "高い塀から飛び降りる (nhảy từ trên bờ tường cao xuống)",
+    "notes": "Hành động nhảy từ vị trí cao xuống thấp.",
+    "isCorrect": false
+  },
+  {
+    "id": 205,
+    "vocab": "地元",
+    "reading": "じもと",
+    "meaning": "Quê hương bản xứ, nơi ở gốc gắn bó",
+    "example": "地元に戻って実家の近くで就職したい (muốn quay về quê nhà xin việc gần bố mẹ)",
+    "notes": "[Đáp án đúng câu 217] Nơi chôn nhau cắt rốn của gia đình.",
+    "isCorrect": true
+  },
+  {
+    "id": 206,
+    "vocab": "根源",
+    "reading": "こんげん",
+    "meaning": "Căn nguyên, gốc rễ của sự việc",
+    "example": "諸悪の根源を断つ (diệt trừ tận gốc rễ của mọi tội ác)",
+    "notes": "Nguồn gốc sâu xa phát sinh ra sự việc tiêu cực.",
+    "isCorrect": false
+  },
+  {
+    "id": 207,
+    "vocab": "土台",
+    "reading": "どだい",
+    "meaning": "Nền móng công trình xây dựng",
+    "example": "建物の土台をしっかり造る (xây dựng nền móng tòa nhà thật vững chắc)",
+    "notes": "Móng nhà bê tông, hoặc nền tảng cơ bản.",
+    "isCorrect": false
+  },
+  {
+    "id": 208,
+    "vocab": "立場",
+    "reading": "たちば",
+    "meaning": "Lập trường, vị trí cương vị cá nhân",
+    "example": "相手の立場に立って考える (đặt mình vào lập trường của đối phương để suy nghĩ)",
+    "notes": "Góc nhìn, cương vị trong xã hội.",
+    "isCorrect": false
+  },
+  {
+    "id": 209,
+    "vocab": "急激",
+    "reading": "きゅうげき",
+    "meaning": "Đột ngột, đột biến nhanh chóng",
+    "example": "景気が急激に悪化する (tình hình kinh tế suy thoái đột ngột)",
+    "notes": "Sự thay đổi với tốc độ rất nhanh và mạnh.",
+    "isCorrect": false
+  },
+  {
+    "id": 210,
+    "vocab": "機敏",
+    "reading": "きびん",
+    "meaning": "Nhanh nhẹn, lanh lẹ tác phong",
+    "example": "機敏な動作で仕事を片付ける (giải quyết công việc bằng tác phong nhanh nhẹn)",
+    "notes": "Sự khéo léo, nhanh nhạy của cơ thể.",
+    "isCorrect": false
+  },
+  {
+    "id": 211,
+    "vocab": "過激",
+    "reading": "かげき",
+    "meaning": "Quá khích, cực đoan",
+    "example": "過激な言動を慎む (kiềm chế những lời nói và hành vi quá khích)",
+    "notes": "Đi quá giới hạn bình thường, mang tính bạo lực.",
+    "isCorrect": false
+  },
+  {
+    "id": 212,
+    "vocab": "敏感",
+    "reading": "びんかん",
+    "meaning": "Nhạy cảm, thính (vị giác, khí hậu)",
+    "example": "彼は味に敏感で少しの違いもわかる (anh ấy rất nhạy về mùi vị, chút khác biệt cũng nhận ra)",
+    "notes": "[Đáp án đúng câu 218] Cụm: `味／匂い／寒さに敏感`.",
+    "isCorrect": true
+  }
+];

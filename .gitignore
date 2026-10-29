@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+vocab-web/node_modules/
+
+# Next.js build
+vocab-web/.next/
+vocab-web/out/
+vocab-web/build/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment files
+.env*.local
+
+# System
+.DS_Store
+Thumbs.db
