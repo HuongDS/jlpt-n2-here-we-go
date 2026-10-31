@@ -5,6 +5,7 @@ import { VOCAB_LIST, VocabItem } from "@/data/vocabData";
 import { checkReadingMatch, speakJapanese, parseReadingField } from "@/lib/japaneseUtils";
 import { soundFX, triggerHaptic } from "@/lib/soundEffects";
 import { parseFileFromBrowser, fetchGoogleSheetCsv } from "@/lib/sheetParser";
+import { parseCollocation, generateCollocationOptions, CollocationData } from "@/lib/collocationUtils";
 import {
   Volume2,
   VolumeX,
@@ -40,11 +41,13 @@ import {
   Layers,
   Play,
   Pause,
-  RotateCw
+  RotateCw,
+  Puzzle,
+  BookMarked
 } from "lucide-react";
 
 type FilterType = "all" | "correct_answers" | "starred" | "wrong";
-type TabType = "flashcard" | "quiz" | "match" | "speed" | "list";
+type TabType = "flashcard" | "collocation" | "quiz" | "match" | "speed" | "list";
 type StudyMode = "reading" | "listening";
 
 interface MatchCard {
@@ -115,6 +118,14 @@ export default function VocabQuizApp() {
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
   const touchStartXRef = useRef<number | null>(null);
 
+  // --- COLLOCATION STATE (LUYỆN CỤM TỪ N2) ---
+  const [collocationSubTab, setCollocationSubTab] = useState<"quiz" | "handbook">("quiz");
+  const [collocationCurrentIndex, setCollocationCurrentIndex] = useState<number>(0);
+  const [collocationSelectedOption, setCollocationSelectedOption] = useState<string | null>(null);
+  const [collocationIsAnswered, setCollocationIsAnswered] = useState<boolean>(false);
+  const [collocationOptions, setCollocationOptions] = useState<string[]>([]);
+  const [collocationSearchQuery, setCollocationSearchQuery] = useState<string>("");
+
   // --- GAME 1: MATCH PAIRS (GHÉP THẺ) STATE ---
   const [matchCards, setMatchCards] = useState<MatchCard[]>([]);
   const [selectedCards, setSelectedCards] = useState<MatchCard[]>([]);
@@ -150,7 +161,7 @@ export default function VocabQuizApp() {
       if (savedFilter) setFilter(savedFilter as FilterType);
 
       const savedTab = localStorage.getItem("n2_current_tab");
-      if (savedTab && ["flashcard", "quiz", "match", "speed", "list"].includes(savedTab)) {
+      if (savedTab && ["flashcard", "collocation", "quiz", "match", "speed", "list"].includes(savedTab)) {
         setTab(savedTab as TabType);
       }
 
@@ -451,6 +462,88 @@ export default function VocabQuizApp() {
 
   const currentItem: VocabItem | undefined = filteredList[currentIndex] || filteredList[0];
 
+  // Collocation dataset derived from filteredList
+  const collocationList = useMemo(() => {
+    return filteredList.map(parseCollocation);
+  }, [filteredList]);
+
+  const currentCollocation: CollocationData | undefined =
+    collocationList[collocationCurrentIndex] || collocationList[0];
+
+  // Reset collocation index if out of bounds
+  useEffect(() => {
+    if (collocationCurrentIndex >= collocationList.length && collocationList.length > 0) {
+      setCollocationCurrentIndex(0);
+    }
+  }, [collocationList.length, collocationCurrentIndex]);
+
+  // Generate 4 options for collocation quiz
+  useEffect(() => {
+    if (tab === "collocation" && currentCollocation && collocationList.length > 0) {
+      setCollocationSelectedOption(null);
+      setCollocationIsAnswered(false);
+      const opts = generateCollocationOptions(currentCollocation, collocationList);
+      setCollocationOptions(opts);
+    }
+  }, [collocationCurrentIndex, tab, currentCollocation, collocationList]);
+
+  const handleCollocationSelect = (chosen: string) => {
+    if (collocationIsAnswered || !currentCollocation) return;
+    setCollocationSelectedOption(chosen);
+    setCollocationIsAnswered(true);
+
+    const isCorrect = chosen === currentCollocation.vocab;
+    if (isCorrect) {
+      soundFX.playCorrect();
+      triggerHaptic(30);
+      setTotalXP((prev) => prev + 10);
+      setCurrentStreak((prev) => {
+        const next = prev + 1;
+        if (next > bestStreak) setBestStreak(next);
+        return next;
+      });
+      if (autoSpeak) {
+        speakJapanese(currentCollocation.jpPhrase);
+      }
+    } else {
+      soundFX.playWrong();
+      triggerHaptic(60);
+      setCurrentStreak(0);
+    }
+  };
+
+  const handleCollocationNext = () => {
+    soundFX.playNext();
+    if (collocationCurrentIndex < collocationList.length - 1) {
+      setCollocationCurrentIndex((prev) => prev + 1);
+    } else {
+      setCollocationCurrentIndex(0);
+    }
+  };
+
+  const handleCollocationPrev = () => {
+    soundFX.playNext();
+    if (collocationCurrentIndex > 0) {
+      setCollocationCurrentIndex((prev) => prev - 1);
+    } else {
+      setCollocationCurrentIndex(collocationList.length - 1);
+    }
+  };
+
+  // Filter for collocation handbook search
+  const collocationHandbookList = useMemo(() => {
+    if (!collocationSearchQuery.trim()) return collocationList;
+    const q = collocationSearchQuery.toLowerCase().trim();
+    return collocationList.filter(
+      (item) =>
+        item.jpPhrase.toLowerCase().includes(q) ||
+        item.vocab.toLowerCase().includes(q) ||
+        item.reading.toLowerCase().includes(q) ||
+        item.viMeaning.toLowerCase().includes(q) ||
+        item.notes.toLowerCase().includes(q)
+    );
+  }, [collocationList, collocationSearchQuery]);
+
   // Auto focus & audio on item change
   useEffect(() => {
     setUserInput("");
@@ -721,6 +814,57 @@ export default function VocabQuizApp() {
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [tab, isJumpModalOpen, isSyncModalOpen, isCardFlipped, currentItem]);
+
+  // Global Keyboard shortcuts for Collocation Quiz
+  useEffect(() => {
+    if (tab !== "collocation" || collocationSubTab !== "quiz") return;
+
+    const handleCollocationKeyDown = (e: KeyboardEvent) => {
+      if (
+        isJumpModalOpen ||
+        isSyncModalOpen ||
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      if (["1", "2", "3", "4"].includes(e.key)) {
+        e.preventDefault();
+        const index = parseInt(e.key, 10) - 1;
+        if (collocationOptions[index]) {
+          handleCollocationSelect(collocationOptions[index]);
+        }
+      } else if (e.code === "Space" || e.key === "Enter") {
+        e.preventDefault();
+        if (collocationIsAnswered) {
+          handleCollocationNext();
+        }
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        handleCollocationPrev();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        handleCollocationNext();
+      } else if (e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        if (currentCollocation) {
+          speakJapanese(currentCollocation.jpPhrase);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleCollocationKeyDown);
+    return () => window.removeEventListener("keydown", handleCollocationKeyDown);
+  }, [
+    tab,
+    collocationSubTab,
+    isJumpModalOpen,
+    isSyncModalOpen,
+    collocationOptions,
+    collocationIsAnswered,
+    currentCollocation,
+  ]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     soundFX.playTyping();
@@ -1074,36 +1218,50 @@ export default function VocabQuizApp() {
             </div>
           )}
 
-          {/* 5 Main Tabs: Flashcard, Luyện gõ, Ghép thẻ, Đua 60s, Tra cứu */}
-          <div className="grid grid-cols-5 bg-zinc-100 p-0.5 sm:p-1 rounded-lg border border-zinc-200 text-[10px] sm:text-xs">
+          {/* Main Navigation Tabs */}
+          <div className="flex items-center gap-1 bg-zinc-100 p-0.5 sm:p-1 rounded-lg border border-zinc-200 text-xs overflow-x-auto no-scrollbar">
             <button
               onClick={() => {
                 soundFX.playClick();
                 setTab("flashcard");
                 setIsCardFlipped(false);
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-2.5 sm:px-3 rounded-md font-medium shrink-0 transition-all ${
                 tab === "flashcard"
                   ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
               <Layers className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Thẻ Flash</span>
+              <span>Thẻ Flash</span>
+            </button>
+            <button
+              onClick={() => {
+                soundFX.playClick();
+                setTab("collocation");
+              }}
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-2.5 sm:px-3 rounded-md font-medium shrink-0 transition-all ${
+                tab === "collocation"
+                  ? "bg-white text-zinc-800 shadow-sm font-semibold"
+                  : "text-zinc-600 hover:text-zinc-800"
+              }`}
+            >
+              <Puzzle className="w-3.5 h-3.5 shrink-0" />
+              <span>Collocation</span>
             </button>
             <button
               onClick={() => {
                 soundFX.playClick();
                 setTab("quiz");
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-2.5 sm:px-3 rounded-md font-medium shrink-0 transition-all ${
                 tab === "quiz"
                   ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
               <BookOpen className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Luyện gõ</span>
+              <span>Luyện gõ</span>
             </button>
             <button
               onClick={() => {
@@ -1111,14 +1269,14 @@ export default function VocabQuizApp() {
                 setTab("match");
                 if (matchCards.length === 0) startNewMatchGame();
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-2.5 sm:px-3 rounded-md font-medium shrink-0 transition-all ${
                 tab === "match"
                   ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
               <Gamepad2 className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Ghép thẻ</span>
+              <span>Ghép thẻ</span>
             </button>
             <button
               onClick={() => {
@@ -1126,34 +1284,34 @@ export default function VocabQuizApp() {
                 setTab("speed");
                 if (!isSpeedRunning && !isSpeedFinished) startSpeedRun();
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-2.5 sm:px-3 rounded-md font-medium shrink-0 transition-all ${
                 tab === "speed"
                   ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
               <Zap className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Đua 60s</span>
+              <span>Đua 60s</span>
             </button>
             <button
               onClick={() => {
                 soundFX.playClick();
                 setTab("list");
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-2.5 sm:px-3 rounded-md font-medium shrink-0 transition-all ${
                 tab === "list"
                   ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
               <List className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Tra cứu</span>
+              <span>Tra cứu</span>
             </button>
           </div>
         </div>
 
-        {/* Filter Bar (Shown in Flashcard, Quiz and List mode) */}
-        {(tab === "flashcard" || tab === "quiz" || tab === "list") && (
+        {/* Filter Bar (Shown in Flashcard, Collocation, Quiz and List mode) */}
+        {(tab === "flashcard" || tab === "collocation" || tab === "quiz" || tab === "list") && (
           <div className="bg-zinc-50 border-t border-zinc-200/80 px-3 sm:px-4 py-1.5">
             <div
               className={`mx-auto flex items-center justify-between gap-2 text-xs transition-all duration-200 ${
@@ -1572,6 +1730,380 @@ export default function VocabQuizApp() {
               </div>
             ) : null}
           </>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB: COLLOCATION MODE (LUYỆN CỤM TỪ KINH ĐIỂN JLPT N2)   */}
+        {/* ======================================================== */}
+        {tab === "collocation" && (
+          <div className="flex flex-col gap-3 sm:gap-4 max-w-2xl mx-auto w-full">
+            {/* Sub-tab Navigation */}
+            <div className="flex items-center justify-between bg-zinc-100 p-1 rounded-xl w-full">
+              <button
+                onClick={() => {
+                  soundFX.playClick();
+                  setCollocationSubTab("quiz");
+                }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+                  collocationSubTab === "quiz"
+                    ? "bg-white text-zinc-900 shadow-xs"
+                    : "text-zinc-600 hover:text-zinc-900"
+                }`}
+              >
+                <Puzzle className="w-4 h-4 shrink-0 text-zinc-700" />
+                <span>Trắc nghiệm ghép cụm</span>
+              </button>
+              <button
+                onClick={() => {
+                  soundFX.playClick();
+                  setCollocationSubTab("handbook");
+                }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+                  collocationSubTab === "handbook"
+                    ? "bg-white text-zinc-900 shadow-xs"
+                    : "text-zinc-600 hover:text-zinc-900"
+                }`}
+              >
+                <BookMarked className="w-4 h-4 shrink-0 text-zinc-700" />
+                <span>Sổ tay cụm từ ({collocationList.length})</span>
+              </button>
+            </div>
+
+            {/* Empty State */}
+            {collocationList.length === 0 ? (
+              <div className="bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 text-center my-6 shadow-xs">
+                <p className="text-zinc-500 text-sm mb-3">
+                  Không tìm thấy cụm từ nào trong bộ lọc này.
+                </p>
+                <button
+                  onClick={() => {
+                    setFilter("all");
+                    setCollocationCurrentIndex(0);
+                  }}
+                  className="px-4 py-2 bg-zinc-700 text-white text-xs font-semibold rounded-lg hover:bg-zinc-800 transition"
+                >
+                  Quay lại xem Tất cả từ vựng
+                </button>
+              </div>
+            ) : collocationSubTab === "quiz" && currentCollocation ? (
+              /* SUB-TAB 1: CLOZE QUIZ */
+              <div className="flex flex-col gap-3 sm:gap-4">
+                {/* Control Bar: Progress, Shuffle, Audio */}
+                <div className="flex items-center justify-between text-xs text-zinc-500 px-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-zinc-700">
+                      Cụm {collocationCurrentIndex + 1} / {collocationList.length}
+                    </span>
+                    {currentCollocation.isCorrect && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[11px] font-medium">
+                        <Sparkles className="w-3 h-3 text-emerald-600" />
+                        Đề N2
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => {
+                        soundFX.playClick();
+                        if (collocationList.length > 1) {
+                          const randIdx = Math.floor(Math.random() * collocationList.length);
+                          setCollocationCurrentIndex(randIdx);
+                        }
+                      }}
+                      className="p-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 transition"
+                      title="Ngẫu nhiên cụm từ"
+                    >
+                      <Shuffle className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => speakJapanese(currentCollocation.jpPhrase)}
+                      className="p-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 transition"
+                      title="Phát âm cả cụm"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Main Cloze Card */}
+                <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-7 shadow-xs">
+                  {/* Meaning Header */}
+                  <div className="text-center mb-3 sm:mb-4">
+                    <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold block mb-1">
+                      Nghĩa của cụm từ:
+                    </span>
+                    <h3 className="text-sm sm:text-base font-medium text-zinc-700">
+                      "{currentCollocation.viMeaning}"
+                    </h3>
+                  </div>
+
+                  {/* Japanese Cloze Phrase Display */}
+                  <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4 sm:p-6 my-2 text-center">
+                    <div className="text-lg sm:text-2xl font-bold text-zinc-900 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 leading-relaxed">
+                      {currentCollocation.before && (
+                        <span>{currentCollocation.before}</span>
+                      )}
+
+                      {/* The Target Cloze Box */}
+                      <span
+                        className={`inline-flex items-center justify-center min-w-[80px] sm:min-w-[120px] px-3 py-1 rounded-lg border-2 font-bold transition-all ${
+                          collocationIsAnswered
+                            ? collocationSelectedOption === currentCollocation.vocab
+                              ? "border-emerald-500 bg-emerald-50 text-emerald-800"
+                              : "border-rose-400 bg-rose-50 text-rose-800"
+                            : "border-dashed border-zinc-300 bg-white text-zinc-400 text-sm sm:text-lg"
+                        }`}
+                      >
+                        {collocationIsAnswered
+                          ? currentCollocation.vocab
+                          : "【 ? 】"}
+                      </span>
+
+                      {currentCollocation.after && (
+                        <span>{currentCollocation.after}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Multiple Choice Options (4 buttons) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 mt-4">
+                    {collocationOptions.map((opt, idx) => {
+                      const isCorrect = opt === currentCollocation.vocab;
+                      const isSelected = opt === collocationSelectedOption;
+
+                      let btnStyle = "bg-white border-zinc-200 text-zinc-800 hover:bg-zinc-50 hover:border-zinc-300";
+                      if (collocationIsAnswered) {
+                        if (isCorrect) {
+                          btnStyle = "bg-emerald-50 border-emerald-500 text-emerald-900 font-bold shadow-xs";
+                        } else if (isSelected && !isCorrect) {
+                          btnStyle = "bg-rose-50 border-rose-400 text-rose-800 line-through opacity-90";
+                        } else {
+                          btnStyle = "bg-zinc-50 border-zinc-200 text-zinc-400 opacity-60";
+                        }
+                      }
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleCollocationSelect(opt)}
+                          disabled={collocationIsAnswered}
+                          className={`flex items-center justify-between p-3 sm:p-3.5 rounded-xl border text-sm sm:text-base font-medium transition min-h-[48px] ${btnStyle}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-md bg-zinc-100 text-zinc-500 text-xs flex items-center justify-center font-bold shrink-0">
+                              {idx + 1}
+                            </span>
+                            <span className="text-zinc-900 font-semibold">{opt}</span>
+                          </div>
+
+                          {collocationIsAnswered && isCorrect && (
+                            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                          )}
+                          {collocationIsAnswered && isSelected && !isCorrect && (
+                            <X className="w-4 h-4 text-rose-600 shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Feedback and Explanation Box */}
+                  {collocationIsAnswered && (
+                    <div className="mt-4 pt-4 border-t border-zinc-100 flex flex-col gap-3">
+                      <div
+                        className={`p-3 rounded-xl border flex items-center justify-between ${
+                          collocationSelectedOption === currentCollocation.vocab
+                            ? "bg-emerald-50/70 border-emerald-200 text-emerald-900"
+                            : "bg-amber-50/70 border-amber-200 text-amber-900"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {collocationSelectedOption === currentCollocation.vocab ? (
+                            <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                          ) : (
+                            <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+                          )}
+                          <div className="text-xs sm:text-sm">
+                            <span className="font-bold">
+                              {collocationSelectedOption === currentCollocation.vocab
+                                ? "Chính xác! (+10 XP)"
+                                : "Cụm đúng là:"}
+                            </span>{" "}
+                            <span className="font-bold underline decoration-zinc-400">
+                              {currentCollocation.jpPhrase}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => speakJapanese(currentCollocation.jpPhrase)}
+                          className="p-1 rounded-md bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 shrink-0"
+                          title="Nghe lại cụm"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Usage Notes / Explanation */}
+                      {currentCollocation.notes && (
+                        <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs sm:text-sm text-zinc-600 text-left">
+                          <span className="font-semibold text-zinc-700 block mb-0.5">
+                            💡 Lưu ý ngữ cảnh N2:
+                          </span>
+                          <span>{currentCollocation.notes}</span>
+                        </div>
+                      )}
+
+                      {/* Next Button */}
+                      <button
+                        onClick={handleCollocationNext}
+                        className="w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-900 active:bg-black text-white font-semibold text-sm rounded-xl transition shadow-xs flex items-center justify-center gap-1.5"
+                      >
+                        <span>Cụm tiếp theo</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Navigation & Tips */}
+                <div className="flex items-center justify-between text-xs text-zinc-400 px-1 pt-1">
+                  <button
+                    onClick={handleCollocationPrev}
+                    className="flex items-center gap-1 hover:text-zinc-700 py-1"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Cụm trước</span>
+                  </button>
+
+                  <span className="hidden sm:inline text-[11px] text-zinc-400">
+                    Phím tắt: 1, 2, 3, 4 (Chọn) • Space / Enter (Tiếp) • R (Nghe)
+                  </span>
+                  <span className="sm:hidden text-[11px] text-zinc-400">
+                    Chạm 1 trong 4 đáp án để kiểm tra
+                  </span>
+
+                  <button
+                    onClick={handleCollocationNext}
+                    className="flex items-center gap-1 hover:text-zinc-700 py-1"
+                  >
+                    <span>Cụm sau</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ) : collocationSubTab === "handbook" ? (
+              /* SUB-TAB 2: HANDBOOK / SỔ TAY COLLOCATION N2 */
+              <div className="flex flex-col gap-3">
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                  <input
+                    type="text"
+                    value={collocationSearchQuery}
+                    onChange={(e) => setCollocationSearchQuery(e.target.value)}
+                    placeholder="Tìm cụm từ, nghĩa tiếng Việt, kanji..."
+                    className="w-full pl-9 pr-9 py-2.5 bg-white border border-zinc-200 rounded-xl text-xs sm:text-sm text-zinc-800 placeholder-zinc-400 focus:outline-hidden focus:border-zinc-400 shadow-xs"
+                  />
+                  {collocationSearchQuery && (
+                    <button
+                      onClick={() => setCollocationSearchQuery("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Counter */}
+                <div className="text-xs text-zinc-500 px-1 flex items-center justify-between">
+                  <span>
+                    Hiển thị <b>{collocationHandbookList.length}</b> cụm từ kinh điển N2
+                  </span>
+                  {collocationSearchQuery && (
+                    <button
+                      onClick={() => setCollocationSearchQuery("")}
+                      className="text-zinc-600 hover:underline text-[11px]"
+                    >
+                      Xóa tìm kiếm
+                    </button>
+                  )}
+                </div>
+
+                {/* Collocation List Cards */}
+                {collocationHandbookList.length === 0 ? (
+                  <div className="bg-white border border-zinc-200 rounded-xl p-8 text-center text-zinc-400 text-xs sm:text-sm">
+                    Không tìm thấy cụm từ nào khớp với "{collocationSearchQuery}".
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-2.5">
+                    {collocationHandbookList.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-white border border-zinc-200 rounded-xl p-3 sm:p-4 hover:border-zinc-300 transition shadow-xs flex flex-col gap-2"
+                      >
+                        {/* Header: Phrase + Audio + Jump Button */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            <span className="text-base sm:text-lg font-bold text-zinc-900">
+                              {item.jpPhrase}
+                            </span>
+                            <span className="text-xs px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-600 border border-zinc-200">
+                              {item.vocab} 【{item.reading}】
+                            </span>
+                            {item.isCorrect && (
+                              <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                Đề N2
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              onClick={() => speakJapanese(item.jpPhrase)}
+                              className="p-1.5 rounded-lg border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-600 transition"
+                              title="Nghe phát âm"
+                            >
+                              <Volume2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                soundFX.playClick();
+                                const targetIdx = collocationList.findIndex(
+                                  (c) => c.id === item.id
+                                );
+                                if (targetIdx !== -1) {
+                                  setCollocationCurrentIndex(targetIdx);
+                                }
+                                setCollocationSubTab("quiz");
+                              }}
+                              className="px-2.5 py-1 rounded-lg border border-zinc-700 bg-zinc-700 hover:bg-zinc-800 text-white text-xs font-semibold transition"
+                            >
+                              Luyện
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Vietnamese Meaning */}
+                        <div className="text-xs sm:text-sm text-zinc-700 font-medium">
+                          {item.viMeaning}
+                        </div>
+
+                        {/* Notes / Context */}
+                        {item.notes && (
+                          <div className="text-[11px] sm:text-xs text-zinc-500 bg-zinc-50 border border-zinc-100 rounded-lg p-2">
+                            <span className="font-semibold text-zinc-600">Ghi chú: </span>
+                            {item.notes}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
         )}
 
         {/* ======================================================== */}
