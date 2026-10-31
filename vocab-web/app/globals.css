@@ -29,6 +29,21 @@ button, input, select, textarea, a {
   }
 }
 
+/* 3D Flip Card animations */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
 /* Landscape optimization for compact devices like iPhone 7 (height <= 450px) */
 @media screen and (orientation: landscape) and (max-height: 480px) {
   main {

@@ -36,11 +36,15 @@ import {
   Volume1,
   Upload,
   FileSpreadsheet,
-  Link2
+  Link2,
+  Layers,
+  Play,
+  Pause,
+  RotateCw
 } from "lucide-react";
 
 type FilterType = "all" | "correct_answers" | "starred" | "wrong";
-type TabType = "quiz" | "match" | "speed" | "list";
+type TabType = "flashcard" | "quiz" | "match" | "speed" | "list";
 type StudyMode = "reading" | "listening";
 
 interface MatchCard {
@@ -53,7 +57,7 @@ interface MatchCard {
 
 export default function VocabQuizApp() {
   // Navigation & Modes
-  const [tab, setTab] = useState<TabType>("quiz");
+  const [tab, setTab] = useState<TabType>("flashcard");
   const [filter, setFilter] = useState<FilterType>("all");
   const [studyMode, setStudyMode] = useState<StudyMode>("reading");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -104,6 +108,13 @@ export default function VocabQuizApp() {
   const [isSyncModalOpen, setIsSyncModalOpen] = useState<boolean>(false);
   const [googleSheetInput, setGoogleSheetInput] = useState<string>("");
 
+  // --- FLASHCARD STATE (LẬT THẺ 3D & ANKI SPEED RUN) ---
+  const [isCardFlipped, setIsCardFlipped] = useState<boolean>(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState<boolean>(false);
+  const [autoPlaySpeed, setAutoPlaySpeed] = useState<number>(2.5);
+  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
+
   // --- GAME 1: MATCH PAIRS (GHÉP THẺ) STATE ---
   const [matchCards, setMatchCards] = useState<MatchCard[]>([]);
   const [selectedCards, setSelectedCards] = useState<MatchCard[]>([]);
@@ -139,7 +150,7 @@ export default function VocabQuizApp() {
       if (savedFilter) setFilter(savedFilter as FilterType);
 
       const savedTab = localStorage.getItem("n2_current_tab");
-      if (savedTab && ["quiz", "match", "speed", "list"].includes(savedTab)) {
+      if (savedTab && ["flashcard", "quiz", "match", "speed", "list"].includes(savedTab)) {
         setTab(savedTab as TabType);
       }
 
@@ -449,6 +460,15 @@ export default function VocabQuizApp() {
       revealed: false,
     });
 
+    if (tab === "flashcard" && currentItem) {
+      setIsCardFlipped(false);
+      if (autoSpeak) {
+        const targetToSpeak =
+          parseReadingField(currentItem.reading).primary || currentItem.vocab;
+        speakJapanese(targetToSpeak);
+      }
+    }
+
     if (tab === "quiz" && currentItem) {
       if (studyMode === "listening") {
         const targetToSpeak =
@@ -461,7 +481,7 @@ export default function VocabQuizApp() {
         }, 50);
       }
     }
-  }, [currentIndex, filter, isShuffled, tab, studyMode, currentItem]);
+  }, [currentIndex, filter, isShuffled, tab, studyMode, currentItem, autoSpeak]);
 
   // Reset index if out of bounds
   useEffect(() => {
@@ -575,6 +595,7 @@ export default function VocabQuizApp() {
 
   const handleNext = () => {
     soundFX.playNext();
+    setIsCardFlipped(false);
     if (currentIndex < filteredList.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
@@ -584,12 +605,122 @@ export default function VocabQuizApp() {
 
   const handlePrev = () => {
     soundFX.playNext();
+    setIsCardFlipped(false);
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
     } else {
       setCurrentIndex(filteredList.length - 1);
     }
   };
+
+  // --- FLASHCARD LOGIC (ANKI / SPACED REPETITION) ---
+  const handleFlashcardRating = (known: boolean) => {
+    if (!currentItem) return;
+    triggerHaptic(known ? 30 : 60);
+
+    if (known) {
+      soundFX.playCorrect();
+      setCorrectWords((prev) =>
+        prev.includes(currentItem.vocab) ? prev : [...prev, currentItem.vocab]
+      );
+      setWrongWords((prev) => prev.filter((v) => v !== currentItem.vocab));
+      setCurrentStreak((prev) => {
+        const next = prev + 1;
+        if (next > bestStreak) setBestStreak(next);
+        return next;
+      });
+      setTotalXP((prev) => prev + 5);
+    } else {
+      soundFX.playWrong();
+      setWrongWords((prev) =>
+        prev.includes(currentItem.vocab) ? prev : [...prev, currentItem.vocab]
+      );
+      setCorrectWords((prev) => prev.filter((v) => v !== currentItem.vocab));
+      setCurrentStreak(0);
+    }
+
+    setIsCardFlipped(false);
+    handleNext();
+  };
+
+  // Mobile swipe gestures for Flashcard
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchEndX - touchStartXRef.current;
+    touchStartXRef.current = null;
+
+    if (diff > 50) {
+      // Swiped Right -> Đã thuộc
+      handleFlashcardRating(true);
+    } else if (diff < -50) {
+      // Swiped Left -> Chưa nhớ
+      handleFlashcardRating(false);
+    }
+  };
+
+  // Flashcard Auto-Play Timer
+  useEffect(() => {
+    if (tab !== "flashcard" || !isAutoPlaying || filteredList.length === 0) {
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+      return;
+    }
+
+    autoPlayTimerRef.current = setTimeout(() => {
+      if (!isCardFlipped) {
+        setIsCardFlipped(true);
+        soundFX.playClick();
+      } else {
+        setIsCardFlipped(false);
+        handleNext();
+      }
+    }, autoPlaySpeed * 1000);
+
+    return () => {
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current);
+    };
+  }, [tab, isAutoPlaying, isCardFlipped, currentIndex, autoPlaySpeed, filteredList.length]);
+
+  // Global Keyboard shortcuts for Flashcard
+  useEffect(() => {
+    if (tab !== "flashcard") return;
+
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (
+        isJumpModalOpen ||
+        isSyncModalOpen ||
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        soundFX.playClick();
+        setIsCardFlipped((prev) => !prev);
+      } else if (e.key === "ArrowLeft" || e.key === "1") {
+        e.preventDefault();
+        handleFlashcardRating(false);
+      } else if (e.key === "ArrowRight" || e.key === "2") {
+        e.preventDefault();
+        handleFlashcardRating(true);
+      } else if (e.key === "ArrowUp" || e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        playCurrentAudio();
+      } else if (e.key === "p" || e.key === "P") {
+        e.preventDefault();
+        setIsAutoPlaying((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [tab, isJumpModalOpen, isSyncModalOpen, isCardFlipped, currentItem]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     soundFX.playTyping();
@@ -943,16 +1074,31 @@ export default function VocabQuizApp() {
             </div>
           )}
 
-          {/* 4 Main Tabs: Luyện gõ, Game Ghép thẻ, Game Đua 60s, Tra cứu */}
-          <div className="grid grid-cols-4 bg-zinc-100 p-0.5 sm:p-1 rounded-lg border border-zinc-200 text-[11px] sm:text-xs">
+          {/* 5 Main Tabs: Flashcard, Luyện gõ, Ghép thẻ, Đua 60s, Tra cứu */}
+          <div className="grid grid-cols-5 bg-zinc-100 p-0.5 sm:p-1 rounded-lg border border-zinc-200 text-[10px] sm:text-xs">
+            <button
+              onClick={() => {
+                soundFX.playClick();
+                setTab("flashcard");
+                setIsCardFlipped(false);
+              }}
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
+                tab === "flashcard"
+                  ? "bg-white text-zinc-800 shadow-sm font-semibold"
+                  : "text-zinc-600 hover:text-zinc-800"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Thẻ Flash</span>
+            </button>
             <button
               onClick={() => {
                 soundFX.playClick();
                 setTab("quiz");
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-1 sm:px-3 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
                 tab === "quiz"
-                  ? "bg-white text-zinc-800 shadow-sm"
+                  ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
@@ -965,9 +1111,9 @@ export default function VocabQuizApp() {
                 setTab("match");
                 if (matchCards.length === 0) startNewMatchGame();
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-1 sm:px-3 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
                 tab === "match"
-                  ? "bg-white text-zinc-800 shadow-sm"
+                  ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
@@ -980,9 +1126,9 @@ export default function VocabQuizApp() {
                 setTab("speed");
                 if (!isSpeedRunning && !isSpeedFinished) startSpeedRun();
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-1 sm:px-3 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
                 tab === "speed"
-                  ? "bg-white text-zinc-800 shadow-sm"
+                  ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
@@ -994,9 +1140,9 @@ export default function VocabQuizApp() {
                 soundFX.playClick();
                 setTab("list");
               }}
-              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-1 sm:px-3 rounded-md font-medium transition-all ${
+              className={`flex items-center justify-center gap-1 py-1.5 landscape:py-1 px-0.5 sm:px-2 rounded-md font-medium transition-all ${
                 tab === "list"
-                  ? "bg-white text-zinc-800 shadow-sm"
+                  ? "bg-white text-zinc-800 shadow-sm font-semibold"
                   : "text-zinc-600 hover:text-zinc-800"
               }`}
             >
@@ -1006,8 +1152,8 @@ export default function VocabQuizApp() {
           </div>
         </div>
 
-        {/* Filter Bar (Only shown in Quiz and List mode) */}
-        {(tab === "quiz" || tab === "list") && (
+        {/* Filter Bar (Shown in Flashcard, Quiz and List mode) */}
+        {(tab === "flashcard" || tab === "quiz" || tab === "list") && (
           <div className="bg-zinc-50 border-t border-zinc-200/80 px-3 sm:px-4 py-1.5">
             <div
               className={`mx-auto flex items-center justify-between gap-2 text-xs transition-all duration-200 ${
@@ -1131,7 +1277,305 @@ export default function VocabQuizApp() {
         }`}
       >
         {/* ======================================================== */}
-        {/* TAB 1: PRACTICE & QUIZ MODE (LUYỆN GÕ THÔNG MINH)        */}
+        {/* TAB 1: FLASHCARD (LẬT THẺ 3D & ÔN SIÊU TỐC ANKI)         */}
+        {/* ======================================================== */}
+        {tab === "flashcard" && (
+          <>
+            {filteredList.length === 0 ? (
+              <div className="bg-white border border-zinc-200 rounded-xl p-6 sm:p-8 text-center my-8 max-w-md mx-auto shadow-sm">
+                <p className="text-zinc-500 text-sm mb-3">
+                  Không có từ vựng nào trong mục này.
+                </p>
+                <button
+                  onClick={() => {
+                    setFilter("all");
+                    setCurrentIndex(0);
+                  }}
+                  className="px-4 py-2 bg-zinc-700 text-white text-xs font-medium rounded-lg hover:bg-zinc-800 transition"
+                >
+                  Quay lại xem Tất cả từ vựng
+                </button>
+              </div>
+            ) : currentItem ? (
+              <div className="flex flex-col gap-3 sm:gap-4 max-w-xl mx-auto w-full">
+                {/* Top Control Bar: Auto-Play, Speed, Audio toggle */}
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  {/* Auto-Play Toggle & Speed Picker */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => {
+                        soundFX.playClick();
+                        setIsAutoPlaying(!isAutoPlaying);
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
+                        isAutoPlaying
+                          ? "bg-zinc-800 text-white border-zinc-800 shadow-sm"
+                          : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100"
+                      }`}
+                    >
+                      {isAutoPlaying ? (
+                        <>
+                          <Pause className="w-3.5 h-3.5" />
+                          <span>Dừng tự động</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-3.5 h-3.5" />
+                          <span>Tự động chạy</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Speed Selector */}
+                    {isAutoPlaying && (
+                      <div className="flex items-center bg-zinc-100 rounded-lg p-0.5 border border-zinc-200 text-[11px]">
+                        {[1.5, 2.5, 3.5].map((speed) => (
+                          <button
+                            key={speed}
+                            onClick={() => {
+                              soundFX.playClick();
+                              setAutoPlaySpeed(speed);
+                            }}
+                            className={`px-2 py-0.5 rounded font-mono ${
+                              autoPlaySpeed === speed
+                                ? "bg-white text-zinc-800 font-bold shadow-xs"
+                                : "text-zinc-500 hover:text-zinc-800"
+                            }`}
+                          >
+                            {speed}s
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Question Index & Jump */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        soundFX.playClick();
+                        setJumpInput(String(currentIndex + 1));
+                        setIsJumpModalOpen(true);
+                      }}
+                      title="Bấm để nhảy câu"
+                      className="font-semibold text-zinc-800 text-xs underline decoration-dotted underline-offset-2 hover:text-black"
+                    >
+                      Câu {currentIndex + 1} / {filteredList.length}
+                    </button>
+                    {currentStreak >= 2 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-zinc-800 bg-zinc-100 px-2 py-0.5 rounded-full border border-zinc-200 animate-pulse">
+                        <Flame className="w-3 h-3 text-amber-500 fill-amber-500" />
+                        <span>x{currentStreak}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
+                  <div
+                    className="bg-zinc-600 h-full transition-all duration-300"
+                    style={{
+                      width: `${((currentIndex + 1) / filteredList.length) * 100}%`,
+                    }}
+                  />
+                </div>
+
+                {/* 3D Flip Card Container */}
+                <div
+                  className="perspective-1000 w-full select-none"
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  <div
+                    onClick={() => {
+                      soundFX.playClick();
+                      setIsCardFlipped(!isCardFlipped);
+                    }}
+                    className={`relative w-full transition-transform duration-500 transform-style-3d cursor-pointer ${
+                      isCardFlipped ? "rotate-y-180" : ""
+                    } min-h-[310px] sm:min-h-[360px] landscape:min-h-[220px]`}
+                  >
+                    {/* FRONT OF CARD */}
+                    <div className="backface-hidden absolute inset-0 w-full h-full bg-white border border-zinc-200 rounded-2xl shadow-sm hover:shadow-md hover:border-zinc-300 transition-all p-5 sm:p-8 flex flex-col justify-between items-center text-center">
+                      {/* Top Bar of Front */}
+                      <div className="w-full flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-mono text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-md">
+                            #{currentItem.id}
+                          </span>
+                          {currentItem.isCorrect && (
+                            <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded-full border border-zinc-200">
+                              <Sparkles className="w-3 h-3 text-zinc-500" />
+                              Đáp án đúng N2
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playCurrentAudio();
+                            }}
+                            title="Nghe phát âm"
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition min-w-[32px] min-h-[32px] flex items-center justify-center"
+                          >
+                            <Volume2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleStar(currentItem.vocab);
+                            }}
+                            title="Đánh dấu từ yêu thích"
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition min-w-[32px] min-h-[32px] flex items-center justify-center"
+                          >
+                            <Star
+                              className={`w-4 h-4 ${
+                                starredWords.includes(currentItem.vocab)
+                                  ? "fill-zinc-800 text-zinc-800"
+                                  : "text-zinc-400"
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Center: Main Vocabulary */}
+                      <div className="my-auto py-3">
+                        <span className="text-[10px] sm:text-xs uppercase tracking-wider text-zinc-400 block mb-2 font-medium">
+                          Từ vựng tiếng Nhật
+                        </span>
+                        <div className="text-4xl sm:text-6xl landscape:text-3xl font-bold text-zinc-800 tracking-tight leading-tight select-all">
+                          {currentItem.vocab}
+                        </div>
+                      </div>
+
+                      {/* Bottom Hint */}
+                      <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium">
+                        <RotateCw className="w-3.5 h-3.5 text-zinc-400" />
+                        <span>Chạm thẻ hoặc bấm Space để lật xem nghĩa & ghi chú</span>
+                      </div>
+                    </div>
+
+                    {/* BACK OF CARD */}
+                    <div className="backface-hidden rotate-y-180 absolute inset-0 w-full h-full bg-white border border-zinc-300 rounded-2xl shadow-md p-5 sm:p-7 flex flex-col justify-between overflow-y-auto">
+                      {/* Top Bar of Back */}
+                      <div className="flex items-center justify-between border-b border-zinc-150 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base sm:text-lg font-bold text-zinc-800">
+                            {currentItem.vocab}
+                          </span>
+                          <span className="text-sm sm:text-base font-semibold text-zinc-700 font-mono">
+                            【 {currentItem.reading} 】
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playCurrentAudio();
+                          }}
+                          className="p-1.5 text-zinc-400 hover:text-zinc-800"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Content of Back */}
+                      <div className="my-auto py-2.5 space-y-2.5">
+                        {/* Meaning */}
+                        <div>
+                          <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-0.5">
+                            Ý nghĩa tiếng Việt:
+                          </span>
+                          <div className="text-lg sm:text-xl font-bold text-zinc-800 leading-snug">
+                            {currentItem.meaning}
+                          </div>
+                        </div>
+
+                        {/* Notes / Collocations */}
+                        {currentItem.notes && (
+                          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 sm:p-3 text-left">
+                            <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-0.5">
+                              Ghi chú & Đặc điểm N2:
+                            </span>
+                            <p className="text-xs sm:text-sm text-zinc-800 leading-relaxed font-medium">
+                              {currentItem.notes}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Example */}
+                        {currentItem.example && (
+                          <div className="text-left text-xs sm:text-sm text-zinc-600 italic bg-white/70 p-2 rounded border border-zinc-150">
+                            {currentItem.example}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bottom hint of Back */}
+                      <div className="text-center text-[11px] text-zinc-400 pt-1 border-t border-zinc-150">
+                        Chạm thẻ để lật lại mặt trước
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rating & Quick Action Buttons (Anki Style) */}
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 w-full pt-1">
+                  <button
+                    onClick={() => handleFlashcardRating(false)}
+                    className="flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-3.5 px-4 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-700 font-semibold text-xs sm:text-sm rounded-xl border border-zinc-300 transition shadow-xs min-h-[46px]"
+                  >
+                    <X className="w-4 h-4 text-zinc-500" />
+                    <span>Chưa nhớ (← / 1)</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleFlashcardRating(true)}
+                    className="flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-3.5 px-4 bg-zinc-700 hover:bg-zinc-800 active:bg-zinc-900 text-white font-semibold text-xs sm:text-sm rounded-xl transition shadow-sm min-h-[46px]"
+                  >
+                    <Check className="w-4 h-4 text-white" />
+                    <span>Đã thuộc (→ / 2)</span>
+                  </button>
+                </div>
+
+                {/* Bottom Navigation & Tips */}
+                <div className="flex items-center justify-between text-xs text-zinc-400 px-1 pt-1">
+                  <button
+                    onClick={handlePrev}
+                    className="flex items-center gap-1 hover:text-zinc-700 py-1"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Từ trước</span>
+                  </button>
+
+                  <span className="hidden sm:inline text-[11px] text-zinc-400">
+                    Phím tắt: Space (Lật) • 1/← (Chưa nhớ) • 2/→ (Đã nhớ) • R (Nghe) • P (Tự chạy)
+                  </span>
+                  <span className="sm:hidden text-[11px] text-zinc-400">
+                    Vuốt trái: Chưa nhớ • Vuốt phải: Đã nhớ
+                  </span>
+
+                  <button
+                    onClick={handleNext}
+                    className="flex items-center gap-1 hover:text-zinc-700 py-1"
+                  >
+                    <span>Từ sau</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 2: PRACTICE & QUIZ MODE (LUYỆN GÕ THÔNG MINH)        */}
         {/* ======================================================== */}
         {tab === "quiz" && (
           <>
